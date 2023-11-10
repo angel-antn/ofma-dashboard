@@ -1,0 +1,189 @@
+<div class="flex flex-column gap-5 mt-5">
+  <p-messages [value]="messages" [closable]="true"></p-messages>
+
+  <div class="flex gap-4 flex-column lg:flex-row">
+    <p-card class="w-full lg:w-24rem h-full">
+      <div style="height: 24.975rem">
+        <h2 class="text-6xl mt-0">Músicos</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl"
+              >{{ musiciansQty }}<span class="text-4xl">Músicos</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="w-full lg:w-24rem"
+      ><p-chart
+        type="doughnut"
+        [data]="highlightedChartData"
+        [options]="highlightedChartOptions"
+      ></p-chart
+    ></p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <p-chart
+        type="doughnut"
+        [data]="genderChartData"
+        [options]="genderChartOptions"
+      ></p-chart
+    ></p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      #musicianTable
+      [value]="musicians"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['fullname']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Músicos</h1>
+            <p-button
+              severity="info"
+              [style]="{
+            'background-color': '#0095ff',
+            border: 'none',
+          }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobal($event)"
+                placeholder="Buscar músico"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            Músico
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th>Sexo</th>
+          <th>Fecha de nacimiento</th>
+          <th>Destacado</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-musician>
+        <tr>
+          <td>
+            <div class="flex gap-3">
+              <img
+                [style]="{ 'object-fit': 'cover' }"
+                class="w-3rem h-3rem border-circle"
+                src="{{ musician.imageUrl }}"
+                alt="{{ musician.name + '_' + musician.lastname }}"
+              />
+              <p>{{ musician.name + " " + musician.lastname | titlecase }}</p>
+            </div>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color':
+                  musician.gender == 'hombre'
+                    ? '#0095ff'
+                    : musician.gender == 'mujer'
+                    ? '#ea4b5a'
+                    : '#4d9e58'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold">{{
+                  musician.gender | titlecase
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>{{ musician.birthdate | date : "dd/MM/YYYY" }}</td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': musician.isHighlighted
+                  ? '#4d9e58'
+                  : '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span
+                  class="pi font-bold text-white"
+                  [ngClass]="{
+                    'pi-heart': !musician.isHighlighted,
+                    'pi-heart-fill': musician.isHighlighted
+                  }"
+                ></span>
+                <span class="text-white">{{
+                  musician.isHighlighted ? "Destacado" : "No destacado"
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div class="flex gap-3">
+              <p-button
+                [routerLink]="['/admin/musicians/', musician.id]"
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">Ver más</span>
+              </p-button>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-user-edit"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
