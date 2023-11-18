@@ -6,6 +6,7 @@
     [outlined]="true"
     severity="info"
     [style]="{ width: '100%' }"
+    routerLink="/admin/concerts/list"
   ></p-button>
 
   <div class="mt-2">
@@ -15,6 +16,7 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
+      routerLink="/admin/content/list"
     ></p-button>
   </div>
 
@@ -25,6 +27,7 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
+      routerLink="/admin/musicians/list"
     ></p-button>
   </div>
 
@@ -35,6 +38,20 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
+      routerLink="/admin/collab/list"
+    ></p-button>
+  </div>
+
+  <p-divider></p-divider>
+
+  <div class="mt-2">
+    <p-button
+      icon="pi pi-times"
+      label="Cerrar sesión"
+      [outlined]="true"
+      severity="danger"
+      [style]="{ width: '100%' }"
+      (onClick)="onLogout()"
     ></p-button>
   </div>
 </p-sidebar>

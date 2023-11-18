@@ -1,2 +1,282 @@
-<p>musician-page works!</p>
-<p>{{ musician | json }}</p>
+<div class="flex flex-column gap-5 mt-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <div class="flex flex-column md:flex-row justify-content-between gap-3">
+    <p-card class="w-full md:w-8">
+      <ng-template #loader>
+        <div
+          class="flex flex-column flex-1 justify-content-center align-items-center px-2 md:px-6"
+        >
+          <img src="assets/loader.svg" alt="loader" />
+        </div>
+      </ng-template>
+      <div
+        *ngIf="musician; else loader"
+        class="flex flex-column flex-1 justify-content-center align-items-center px-2 md:px-6"
+      >
+        <img
+          [src]="musician.imageUrl"
+          [alt]="musician.name"
+          class="w-14rem h-14rem border-circle"
+          [style]="{ 'object-fit': 'cover' }"
+        />
+        <h1 class="text-center text-6xl mb-0 text-blue-400">
+          {{ musician.fullname | titlecase }}
+        </h1>
+        <h2 class="text-center text-4xl my-2 text-400">
+          {{ musician.gender | titlecase }}
+        </h2>
+        <p class="text-center text-2xl">{{ musician.description }}</p>
+        <div
+          class="inline-flex flex-column md:flex-row justify-content-center md:align-items-end mt-3"
+        >
+          <div class="w-12rem">
+            <div
+              class="flex flex-column justify-content-center align-items-center"
+            >
+              <div
+                class="h-5rem w-5rem border-round-lg mb-2"
+                [style]="{
+                  width: '8rem',
+                  'background-color': musician.isHighlighted
+                    ? '#4d9e58'
+                    : '#f59e0b'
+                }"
+              >
+                <div
+                  class="mt-2 flex flex-1 justify-content-center align-items-center"
+                >
+                  <span
+                    class="pi text-white text-7xl"
+                    [ngClass]="{
+                      'pi-heart': !musician.isHighlighted,
+                      'pi-heart-fill': musician.isHighlighted
+                    }"
+                  ></span>
+                </div>
+              </div>
+              <span class="text-center text-3xl my-2 text-400">
+                {{ musician.isHighlighted ? "Destacado" : "No destacado" }}
+              </span>
+            </div>
+          </div>
+
+          <p-divider class="block md:hidden"></p-divider>
+          <p-divider layout="vertical" class="hidden md:inline"></p-divider>
+
+          <div class="w-12rem">
+            <div
+              class="flex flex-column justify-content-center align-items-center"
+            >
+              <span class="text-8xl font-bold text-blue-400">45</span>
+              <span class="text-center text-3xl my-2 text-400">
+                Conciertos
+              </span>
+            </div>
+          </div>
+
+          <p-divider class="block md:hidden"></p-divider>
+          <p-divider layout="vertical" class="hidden md:inline"></p-divider>
+
+          <div class="w-12rem">
+            <div
+              class="flex flex-column justify-content-center align-items-center"
+            >
+              <span class="text-8xl font-bold text-blue-400">27</span>
+              <span class="text-center text-3xl my-2 text-400"> Videos </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full md:w-4">
+      <div class="px-2 md:px-4">
+        <div class="flex gap-3 align-items-center">
+          <h2 class="text-4xl">Músico</h2>
+          <p-button
+            severity="warning"
+            icon="pi pi-user-edit"
+            [outlined]="true"
+            (click)="dialogVisible = true"
+          >
+          </p-button>
+        </div>
+
+        <h3>Info:</h3>
+
+        <p-divider align="right">
+          <div class="inline-flex align-items-center">
+            <i class="pi pi-calendar mr-2"></i>
+            <b>Fechas</b>
+          </div>
+        </p-divider>
+
+        <div class="mt-3">
+          <span class="font-bold">Fecha de nacimiento: </span>
+          <span class="text-400">{{
+            musician?.birthdate | date : "dd/MM/YYYY"
+          }}</span>
+        </div>
+
+        <div class="mt-3">
+          <span class="font-bold">Fecha de inscripción: </span>
+          <span class="text-400">{{
+            musician?.startdate | date : "dd/MM/YYYY"
+          }}</span>
+        </div>
+
+        <p-divider align="right">
+          <div class="inline-flex align-items-center">
+            <i class="pi pi-envelope mr-2"></i>
+            <b>Contacto</b>
+          </div>
+        </p-divider>
+        <div class="mt-3">
+          <span class="font-bold">Email: </span>
+          <span class="text-400">{{ musician?.email }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>
+<p-dialog
+  header="Editar músico"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-5"
+      [formGroup]="MusicianForm!"
+      (ngSubmit)="onSubmit()"
+    >
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="lastname"
+          class="w-20rem md:w-30rem"
+          formControlName="lastname"
+          required
+        />
+        <label htmlFor="lastname">Apellido</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="email"
+          class="w-20rem md:w-30rem"
+          formControlName="email"
+          required
+        />
+        <label htmlFor="email">Email</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="birthdate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="birthdate"
+        ></p-calendar>
+        <label htmlFor="birthdate">Fecha de nacimiento</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="startdate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startdate"
+        ></p-calendar>
+        <label htmlFor="startdate">Fecha de inscripción</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="['Hombre', 'Mujer', 'Otro']"
+          inputId="gender"
+          formControlName="gender"
+        ></p-dropdown>
+        <label for="gender">Sexo</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="12"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <input
+          accept="image/webp"
+          type="file"
+          (change)="uploadFile($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': file ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="file"
+          >{{ file!.name | slice : 0 : 20
+          }}{{ file!.name.length > 20 ? "...webp" : "" }}</span
+        >
+      </div>
+
+      <div class="flex flex-1 justify-content-end gap-2 mt-5">
+        <span>Destacado</span>
+        <p-inputSwitch formControlName="isHighlighted"></p-inputSwitch>
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{ width: '100%', 'margin-bottom': '3rem' }"
+          label="Editar músico"
+          [outlined]="true"
+          severity="warning"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

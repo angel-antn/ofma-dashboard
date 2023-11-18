@@ -1,13 +1,19 @@
 <p-card>
-  <div class="m-5 md:mx-8">
+  <form class="m-5 md:mx-8" [formGroup]="authForm!" (ngSubmit)="onLogin()">
     <img
       class="w-10rem md:w-16rem block mx-auto"
       src="assets/ofma_logo.svg"
       alt="ofma logo"
     />
     <span class="p-float-label mt-6">
-      <input pInputText id="username" class="w-full" />
-      <label htmlFor="username">Usuario</label>
+      <input
+        pInputText
+        id="email"
+        class="w-full"
+        formControlName="email"
+        required
+      />
+      <label htmlFor="email">Email</label>
     </span>
 
     <span class="p-float-label mt-5">
@@ -16,17 +22,22 @@
         [style]="{ width: '100%' }"
         [inputStyle]="{ width: '100%' }"
         [toggleMask]="true"
+        formControlName="password"
+        required
       ></p-password>
       <label for="password">Password</label>
     </span>
 
     <div class="mt-5">
       <p-button
+        type="submit"
         [style]="{ width: '100%' }"
         label="Iniciar sesión"
         [outlined]="true"
         severity="info"
       ></p-button>
     </div>
-  </div>
+  </form>
 </p-card>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

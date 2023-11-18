@@ -1,19 +1,18 @@
 export interface MusicianResponse {
-  page: number;
-  pageSize: number;
   totalCount: number;
-  pageCount: number;
   result: Musician[];
 }
 
 export interface Musician {
-  id: string;
+  id?: string;
   name: string;
   lastname: string;
-  fullname: string;
+  email: string;
   birthdate: Date;
+  startdate: Date;
   description: string;
   isHighlighted: boolean;
-  imageUrl: string;
   gender: string;
+  fullname?: string;
+  imageUrl?: string;
 }

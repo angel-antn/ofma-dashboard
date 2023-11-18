@@ -1,5 +1,9 @@
 <div class="flex flex-column gap-5 mt-5">
-  <p-messages [value]="messages" [closable]="true"></p-messages>
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
 
   <div class="flex gap-4 flex-column lg:flex-row">
     <p-card class="w-full lg:w-24rem h-full">
@@ -49,10 +53,11 @@
             <h1>Músicos</h1>
             <p-button
               severity="info"
+              (click)="panelCreate.toggle($event)"
               [style]="{
-            'background-color': '#0095ff',
-            border: 'none',
-          }"
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
             >
               <span class="text-white font-bold">
                 <span class="pi pi-plus"></span>
@@ -158,18 +163,7 @@
               </p-button>
 
               <p-button
-                severity="warning"
-                [style]="{
-                'background-color': '#f59e0b',
-                border: 'none',
-              }"
-              >
-                <span class="text-white font-bold">
-                  <span class="pi pi-user-edit"></span>
-                </span>
-              </p-button>
-
-              <p-button
+                (click)="confirmDelete(musician.id)"
                 severity="error"
                 [style]="{
                 'background-color': '#ea4b5a',
@@ -187,3 +181,138 @@
     </p-table>
   </p-card>
 </div>
+
+<p-overlayPanel #panelCreate>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8"
+      [formGroup]="MusicianForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <h2>Crear nuevo músico</h2>
+
+      <span class="p-float-label mt-6">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="lastname"
+          class="w-20rem md:w-30rem"
+          formControlName="lastname"
+          required
+        />
+        <label htmlFor="lastname">Apellido</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="email"
+          class="w-20rem md:w-30rem"
+          formControlName="email"
+          required
+        />
+        <label htmlFor="email">Email</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="birthdate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="birthdate"
+        ></p-calendar>
+        <label htmlFor="birthdate">Fecha de nacimiento</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="startdate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startdate"
+        ></p-calendar>
+        <label htmlFor="startdate">Fecha de inscripción</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="['Hombre', 'Mujer', 'Otro']"
+          inputId="gender"
+          formControlName="gender"
+        ></p-dropdown>
+        <label for="gender">Sexo</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <input
+          accept="image/webp"
+          type="file"
+          (change)="uploadFile($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': file ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="file"
+          >{{ file!.name | slice : 0 : 20
+          }}{{ file!.name.length > 20 ? "...webp" : "" }}</span
+        >
+      </div>
+
+      <div class="flex flex-1 justify-content-end gap-2 mt-5">
+        <span>Destacado</span>
+        <p-inputSwitch formControlName="isHighlighted"></p-inputSwitch>
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{ width: '100%', 'margin-bottom': '3rem' }"
+          label="Crear músico"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-overlayPanel>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>
