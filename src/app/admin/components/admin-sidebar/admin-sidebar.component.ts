@@ -14,6 +14,12 @@ export class AdminSidebarComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  onButtonClick(route: string) {
+    console.log(route);
+    this.sidebarVisible = false;
+    this.router.navigate([route]);
+  }
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/auth/login']);

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
-import { MusicianPageComponent } from './pages/musician-page/musician-page.component';
+import { ContentPageComponent } from './pages/content-page/content-page.component';
 
 const routes: Routes = [
   {
@@ -10,7 +10,7 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: 'list', component: ListPageComponent },
-      { path: ':id', component: MusicianPageComponent },
+      { path: ':id', component: ContentPageComponent },
       { path: '', redirectTo: 'list', pathMatch: 'full' },
     ],
   },
@@ -20,4 +20,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class MusiciansRoutingModule {}
+export class ContentRoutingModule {}

@@ -6,7 +6,7 @@
     [outlined]="true"
     severity="info"
     [style]="{ width: '100%' }"
-    routerLink="/admin/concerts/list"
+    (onClick)="onButtonClick('/admin/concerts/list')"
   ></p-button>
 
   <div class="mt-2">
@@ -16,7 +16,7 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
-      routerLink="/admin/content/list"
+      (onClick)="onButtonClick('/admin/content/list')"
     ></p-button>
   </div>
 
@@ -27,7 +27,7 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
-      routerLink="/admin/musicians/list"
+      (onClick)="onButtonClick('/admin/musicians/list')"
     ></p-button>
   </div>
 
@@ -38,7 +38,7 @@
       [outlined]="true"
       severity="info"
       [style]="{ width: '100%' }"
-      routerLink="/admin/collab/list"
+      (onClick)="onButtonClick('/admin/collab/list')"
     ></p-button>
   </div>
 
