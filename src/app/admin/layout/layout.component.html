@@ -3,5 +3,18 @@
 
   <app-admin-header></app-admin-header>
 
+  <div
+    class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mt-3"
+  >
+    <div><h2 class="m-0 text-4xl hidden md:block">Dashboard</h2></div>
+    <div class="flex align-items-center gap-2">
+      <div><h2 class="text-lg">Modo oscuro</h2></div>
+      <p-inputSwitch
+        [(ngModel)]="isDarkMode"
+        (onChange)="switchTheme()"
+      ></p-inputSwitch>
+    </div>
+  </div>
+
   <router-outlet></router-outlet>
 </div>

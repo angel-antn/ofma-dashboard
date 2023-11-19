@@ -1,0 +1,4 @@
+@import "primeng/resources/themes/soho-light/theme.css";
+body {
+  background-color: hsl(213, 39%, 97%);
+}

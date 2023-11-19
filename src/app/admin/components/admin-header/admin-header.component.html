@@ -8,6 +8,12 @@
     ></p-button>
   </div>
   <div class="p-toolbar-group-end">
-    <img src="assets/ofma_logo.svg" alt="Ofma logo" class="w-6rem mr-5" />
+    <img
+      [src]="
+        isDarkMode ? 'assets/ofma_logo.svg' : 'assets/ofma_logo_variant.svg'
+      "
+      alt="Ofma logo"
+      class="w-6rem mr-5"
+    />
   </div>
 </p-toolbar>

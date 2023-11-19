@@ -1,5 +1,9 @@
 <p-sidebar [(visible)]="sidebarVisible">
-  <img src="assets/ofma_logo.svg" alt="Ofma logo" class="w-10rem mb-5" />
+  <img
+    [src]="isDarkMode ? 'assets/ofma_logo.svg' : 'assets/ofma_logo_variant.svg'"
+    alt="Ofma logo"
+    class="w-10rem mb-5"
+  />
   <p-button
     icon="pi pi-ticket"
     label="Gestionar conciertos"

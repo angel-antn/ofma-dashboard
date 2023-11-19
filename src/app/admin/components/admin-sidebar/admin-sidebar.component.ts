@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { SidebarStateService } from '../../services/sidebar-state.service';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/auth/services/auth-service.service';
+import { ThemeService } from 'src/app/shared/services/theme.service';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -12,8 +13,13 @@ export class AdminSidebarComponent {
   constructor(
     private sidebarStateService: SidebarStateService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService
   ) {}
+
+  get isDarkMode() {
+    return this.themeService.isDarkMode;
+  }
 
   onButtonClick(route: string) {
     console.log(route);
