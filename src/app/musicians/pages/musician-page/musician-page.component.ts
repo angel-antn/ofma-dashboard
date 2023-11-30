@@ -51,7 +51,7 @@ export class MusicianPageComponent implements OnInit {
     email: new FormControl<string>(''),
     fullname: new FormControl<string>(''),
     birthdate: new FormControl<Date | undefined>(undefined),
-    startdate: new FormControl<Date | undefined>(undefined),
+    startDate: new FormControl<Date | undefined>(undefined),
     description: new FormControl<string>(''),
     isHighlighted: new FormControl<boolean>(false),
     gender: new FormControl<string | undefined>(undefined),
@@ -81,7 +81,7 @@ export class MusicianPageComponent implements OnInit {
     if (
       this.MusicianForm.invalid ||
       !this.MusicianForm.value.birthdate ||
-      !this.MusicianForm.value.startdate ||
+      !this.MusicianForm.value.startDate ||
       !this.MusicianForm.value.gender
     ) {
       this.generateToast('Error', 'Hay campos obligatorios sin rellenar');
@@ -133,7 +133,7 @@ export class MusicianPageComponent implements OnInit {
           gender: musician.gender,
           isHighlighted: musician.isHighlighted,
           birthdate: new Date(musician.birthdate),
-          startdate: new Date(musician.startdate),
+          startDate: new Date(musician.startDate),
         });
         return (this.musician = musician);
       });

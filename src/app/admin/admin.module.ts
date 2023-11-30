@@ -6,10 +6,10 @@ import { LayoutComponent } from './layout/layout.component';
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
 import { AdminHeaderComponent } from './components/admin-header/admin-header.component';
-import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [LayoutComponent, AdminSidebarComponent, AdminHeaderComponent],
-  imports: [CommonModule, AdminRoutingModule, PrimeNgModule, FormsModule],
+  imports: [CommonModule, AdminRoutingModule, PrimeNgModule, SharedModule],
 })
 export class AdminModule {}

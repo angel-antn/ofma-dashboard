@@ -9,7 +9,7 @@ export interface Musician {
   lastname: string;
   email: string;
   birthdate: Date;
-  startdate: Date;
+  startDate: Date;
   description: string;
   isHighlighted: boolean;
   gender: string;

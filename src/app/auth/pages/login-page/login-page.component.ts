@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth-service.service';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup } from '@angular/forms';
 import { catchError, of } from 'rxjs';
+import { ThemeService } from 'src/app/shared/services/theme.service';
 
 @Component({
   templateUrl: './login-page.component.html',
@@ -14,8 +15,13 @@ export class LoginPageComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private themeService: ThemeService
   ) {}
+
+  get isDarkMode() {
+    return this.themeService.isDarkMode;
+  }
 
   authForm = new FormGroup({
     email: new FormControl<string>(''),

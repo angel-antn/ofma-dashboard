@@ -9,7 +9,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ChartModule } from 'primeng/chart';
 import { MessagesModule } from 'primeng/messages';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
@@ -18,6 +17,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 import { DialogModule } from 'primeng/dialog';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @NgModule({
   exports: [
@@ -31,7 +31,6 @@ import { DialogModule } from 'primeng/dialog';
     TagModule,
     ChartModule,
     MessagesModule,
-    OverlayPanelModule,
     CalendarModule,
     InputTextareaModule,
     DropdownModule,
@@ -40,6 +39,7 @@ import { DialogModule } from 'primeng/dialog';
     ConfirmDialogModule,
     DividerModule,
     DialogModule,
+    InputNumberModule,
   ],
 })
 export class PrimeNgModule {}

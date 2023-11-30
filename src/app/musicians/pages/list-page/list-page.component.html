@@ -38,6 +38,7 @@
   <p-card>
     <p-table
       #musicianTable
+      [scrollable]="true"
       [value]="musicians"
       [tableStyle]="{ 'min-width': '50rem' }"
       [paginator]="true"
@@ -53,7 +54,7 @@
             <h1>Músicos</h1>
             <p-button
               severity="info"
-              (click)="panelCreate.toggle($event)"
+              (click)="dialogVisible = true"
               [style]="{
                 'background-color': '#0095ff',
                 border: 'none',
@@ -182,16 +183,20 @@
   </p-card>
 </div>
 
-<p-overlayPanel #panelCreate>
+<p-dialog
+  header="Crear nuevo músico"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
   <ng-template pTemplate="content">
     <form
-      class="m-0 md:mx-8"
+      class="m-0 md:mx-8 mt-4"
       [formGroup]="MusicianForm"
       (ngSubmit)="onSubmit()"
     >
-      <h2>Crear nuevo músico</h2>
-
-      <span class="p-float-label mt-6">
+      <span class="p-float-label">
         <input
           pInputText
           id="name"
@@ -238,12 +243,12 @@
       <span class="p-float-label mt-5">
         <p-calendar
           dateFormat="dd/mm/yy"
-          id="startdate"
+          id="startDate"
           [style]="{ width: '100%' }"
           (click)="$event.stopPropagation()"
-          formControlName="startdate"
+          formControlName="startDate"
         ></p-calendar>
-        <label htmlFor="startdate">Fecha de inscripción</label>
+        <label htmlFor="startDate">Fecha de inscripción</label>
       </span>
 
       <span class="p-float-label mt-5">
@@ -311,7 +316,7 @@
       </div>
     </form>
   </ng-template>
-</p-overlayPanel>
+</p-dialog>
 
 <p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
 

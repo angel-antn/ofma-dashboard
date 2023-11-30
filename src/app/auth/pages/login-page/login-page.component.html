@@ -1,15 +1,17 @@
 <p-card>
-  <form class="m-5 md:mx-8" [formGroup]="authForm!" (ngSubmit)="onLogin()">
+  <form class="m-2 md:mx-6" [formGroup]="authForm!" (ngSubmit)="onLogin()">
     <img
       class="w-10rem md:w-16rem block mx-auto"
-      src="assets/ofma_logo.svg"
+      [src]="
+        isDarkMode ? 'assets/ofma_logo.svg' : 'assets/ofma_logo_variant.svg'
+      "
       alt="ofma logo"
     />
     <span class="p-float-label mt-6">
       <input
         pInputText
         id="email"
-        class="w-full"
+        class="w-17rem md:w-30rem"
         formControlName="email"
         required
       />

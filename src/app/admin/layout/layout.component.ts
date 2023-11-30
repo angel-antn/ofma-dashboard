@@ -11,7 +11,4 @@ export class LayoutComponent {
     this.isDarkMode = themeService.isDarkMode;
   }
   isDarkMode = true;
-  switchTheme() {
-    this.themeService.switchTheme();
-  }
 }

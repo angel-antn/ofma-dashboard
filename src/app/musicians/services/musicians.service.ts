@@ -35,7 +35,7 @@ export class MusiciansService {
     formData.append('email', musician.email.toLocaleLowerCase());
     formData.append('gender', musician.gender.toLocaleLowerCase());
     formData.append('birthdate', musician.birthdate.toDateString());
-    formData.append('startdate', musician.startdate.toDateString());
+    formData.append('startDate', musician.startDate.toDateString());
     if (musician.isHighlighted) {
       formData.append('isHighlighted', 'true');
     }
@@ -70,7 +70,7 @@ export class MusiciansService {
     formData.append('email', musician.email.toLocaleLowerCase());
     formData.append('gender', musician.gender.toLocaleLowerCase());
     formData.append('birthdate', musician.birthdate.toDateString());
-    formData.append('startdate', musician.startdate.toDateString());
+    formData.append('startDate', musician.startDate.toDateString());
     formData.append('isHighlighted', musician.isHighlighted ? 'true' : '');
 
     formData.append('description', musician.description);

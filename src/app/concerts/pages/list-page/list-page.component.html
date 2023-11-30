@@ -1,0 +1,442 @@
+<div class="flex flex-column gap-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <div class="flex gap-4 flex-column lg:flex-row">
+    <p-card class="w-full lg:w-24rem h-full">
+      <div style="height: 24.975rem">
+        <h2 class="text-6xl mt-0">Conciertos</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl"
+              >{{ concertsQty + endedConcertsQty
+              }}<span class="text-4xl">Conciertos</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem"
+      ><p-chart
+        type="doughnut"
+        [data]="statusChartData"
+        [options]="statusChartOptions"
+      ></p-chart
+    ></p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      #concertTable
+      [scrollable]="true"
+      [value]="concerts"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['name']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Conciertos Activos</h1>
+            <p-button
+              severity="info"
+              (click)="dialogVisible = true"
+              [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobal($event)"
+                placeholder="Buscar concierto"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Banner</th>
+          <th>Nombre</th>
+          <th>Estatus</th>
+          <th>Fecha de inicio</th>
+          <th>Hora de inicio</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-concert>
+        <tr>
+          <td>
+            <img
+              [style]="{ 'object-fit': 'cover' }"
+              class="w-16rem md:w-18rem h-8rem border-round-lg"
+              src="{{ concert.imageUrl }}"
+              alt="{{ concert.name }}"
+            />
+          </td>
+
+          <td>
+            <p>{{ concert.name }}</p>
+          </td>
+
+          <td>
+            <div>
+              <p-tag
+                *ngIf="concert.isOpen; else closedTag"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Activo </span>
+                </div>
+              </p-tag>
+
+              <ng-template #closedTag>
+                <p-tag
+                  [style]="{
+                    width: '6rem',
+                    'background-color': '#ea4b5a'
+                  }"
+                >
+                  <div class="p-2 flex gap-2">
+                    <span class="text-white font-bold"> Cerrado </span>
+                  </div>
+                </p-tag>
+              </ng-template>
+            </div>
+          </td>
+
+          <td>
+            <p>{{ concert.startDate | date : "dd/MM/YYYY" }}</p>
+          </td>
+
+          <td>
+            <p>{{ stringToDate(concert.startAtHour) | date : "h:mm a" }}</p>
+          </td>
+          <td>
+            <div class="flex gap-3">
+              <p-button
+                [routerLink]="['/admin/concerts/', concert.id]"
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">Ver más</span>
+              </p-button>
+
+              <p-button
+                *ngIf="concert.isOpen; else buttonActivateConcert"
+                (onClick)="closeConcert(concert.id)"
+                severity="error"
+                [style]="{
+                  width: '6rem',
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="m-auto text-white font-bold">Cerrar</span>
+              </p-button>
+
+              <ng-template #buttonActivateConcert
+                ><p-button
+                  (onClick)="openConcert(concert.id)"
+                  severity="success"
+                  [style]="{
+                    width: '6rem',
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+                >
+                  <span class="m-auto text-white font-bold">Abrir</span>
+                </p-button></ng-template
+              >
+
+              <p-button
+                (onClick)="finishConcert(concert.id)"
+                [disabled]="concert.isOpen"
+                severity="warning"
+                [style]="{
+                  width: '6rem',
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="m-auto text-white font-bold">Finalizar</span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <p-card>
+    <p-table
+      #endedConcertTable
+      [scrollable]="true"
+      [value]="endedConcerts"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['name']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Conciertos Finalizados</h1>
+
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalEnded($event)"
+                placeholder="Buscar concierto"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Banner</th>
+          <th>Nombre</th>
+          <th>Estatus</th>
+          <th>Fecha de inicio</th>
+          <th>Hora de inicio</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-concert>
+        <tr>
+          <td>
+            <img
+              [style]="{ 'object-fit': 'cover' }"
+              class="w-16rem md:w-18rem h-8rem border-round-lg"
+              src="{{ concert.imageUrl }}"
+              alt="{{ concert.name }}"
+            />
+          </td>
+
+          <td>
+            <p>{{ concert.name }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold">Finalizado</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p>{{ concert.startDate | date : "dd/MM/YYYY" }}</p>
+          </td>
+
+          <td>
+            <p>{{ stringToDate(concert.startAtHour) | date : "h:mm a" }}</p>
+          </td>
+          <td>
+            <div class="flex gap-3">
+              <p-button
+                [routerLink]="['/admin/concerts/', concert.id]"
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">Ver más</span>
+              </p-button>
+
+              <p-button
+                (click)="confirmDelete(concert.id)"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-dialog
+  header="Crear nuevo concierto"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="ConcertForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="startDate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startDate"
+        ></p-calendar>
+        <label htmlFor="startDate">Fecha de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          id="startAtHour"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startAtHour"
+          [timeOnly]="true"
+          [hourFormat]="'12'"
+        ></p-calendar>
+        <label htmlFor="startAtHour">Hora de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="entriesQty"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="entriesQty"
+          [useGrouping]="false"
+        />
+        <label htmlFor="entriesQty">Cantidad de entradas</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="pricePerEntry"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="pricePerEntry"
+          mode="currency"
+          currency="USD"
+          locale="de-DE"
+          [maxFractionDigits]="2"
+          [minFractionDigits]="2"
+        />
+        <label htmlFor="pricePerEntry">Precio por entrada</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="address"
+          class="w-20rem md:w-30rem"
+          formControlName="address"
+          required
+        />
+        <label htmlFor="address">Dirección</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <input
+          accept="image/webp"
+          type="file"
+          (change)="uploadFile($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': file ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="file"
+          >{{ file!.name | slice : 0 : 20
+          }}{{ file!.name.length > 20 ? "...webp" : "" }}</span
+        >
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear concierto"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

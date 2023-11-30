@@ -4,10 +4,10 @@ import { LayoutComponent } from './layout/layout.component';
 
 const routes: Routes = [
   {
-    path: 'musicians',
+    path: 'concerts',
     component: LayoutComponent,
     loadChildren: () =>
-      import('../musicians/musicians.module').then((m) => m.MusiciansModule),
+      import('../concerts/concerts.module').then((m) => m.ConcertsModule),
   },
   {
     path: 'content',
@@ -15,8 +15,14 @@ const routes: Routes = [
     loadChildren: () =>
       import('../content/content.module').then((m) => m.ContentModule),
   },
-  { path: '', redirectTo: 'musicians', pathMatch: 'full' },
-  { path: '**', redirectTo: 'musicians' },
+  {
+    path: 'musicians',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('../musicians/musicians.module').then((m) => m.MusiciansModule),
+  },
+  { path: '', redirectTo: 'concerts', pathMatch: 'full' },
+  { path: '**', redirectTo: 'concerts' },
 ];
 
 @NgModule({

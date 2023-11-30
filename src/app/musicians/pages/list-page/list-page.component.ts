@@ -18,6 +18,9 @@ export class ListPageComponent implements OnInit {
     private confirmationService: ConfirmationService
   ) {}
 
+  dialogVisible = false;
+  @ViewChild('musicianTable') musicianTable: Table | undefined;
+
   musicians: Musician[] = [];
   musiciansQty: number = 0;
 
@@ -40,7 +43,7 @@ export class ListPageComponent implements OnInit {
     email: new FormControl<string>(''),
     fullname: new FormControl<string>(''),
     birthdate: new FormControl<Date | undefined>(undefined),
-    startdate: new FormControl<Date | undefined>(undefined),
+    startDate: new FormControl<Date | undefined>(undefined),
     description: new FormControl<string>(''),
     isHighlighted: new FormControl<boolean>(false),
     gender: new FormControl<string | undefined>(undefined),
@@ -54,7 +57,7 @@ export class ListPageComponent implements OnInit {
     if (
       this.MusicianForm.invalid ||
       !this.MusicianForm.value.birthdate ||
-      !this.MusicianForm.value.startdate ||
+      !this.MusicianForm.value.startDate ||
       !this.MusicianForm.value.gender
     ) {
       this.generateToast('Error', 'Hay campos obligatorios sin rellenar');
@@ -90,6 +93,7 @@ export class ListPageComponent implements OnInit {
           this.musicians.push(res as Musician);
           this.initializeHighlightedChartData();
           this.initializeGenderChartData();
+          this.musicianTable?.reset();
         }
       });
   }
@@ -123,8 +127,8 @@ export class ListPageComponent implements OnInit {
         {
           data: [this.highlightedQty, this.nonHighlightedQty],
           backgroundColor: [
-            'rgba(77, 158, 88, 0.2)',
-            'rgba(245, 158, 11, 0.2)',
+            'rgba(77, 158, 88, 0.3)',
+            'rgba(245, 158, 11, 0.3)',
           ],
           borderColor: ['rgb(77, 158, 88)', 'rgb(245, 158, 11)'],
           borderWidth: 1,
@@ -158,9 +162,9 @@ export class ListPageComponent implements OnInit {
         {
           data: [this.maleQty, this.femaleQty, this.otherQty],
           backgroundColor: [
-            'rgba(0, 149, 255, 0.2)',
-            'rgba(234, 75, 90, 0.2)',
-            'rgba(77, 158, 88, 0.2)',
+            'rgba(0, 149, 255, 0.3)',
+            'rgba(234, 75, 90, 0.3)',
+            'rgba(77, 158, 88, 0.3)',
           ],
           borderColor: [
             'rgb(0, 149, 255)',
@@ -174,7 +178,6 @@ export class ListPageComponent implements OnInit {
   }
 
   //table
-  @ViewChild('musicianTable') musicianTable: Table | undefined;
   applyFilterGlobal($event: any) {
     this.musicianTable?.filterGlobal(
       ($event.target as HTMLInputElement).value,
@@ -185,7 +188,7 @@ export class ListPageComponent implements OnInit {
   //delete
   confirmDelete(id: string) {
     this.confirmationService.confirm({
-      message: '¿Esta seguro que quiere borrar al músico?',
+      message: '¿Esta seguro que desea borrar al músico?',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -203,6 +206,7 @@ export class ListPageComponent implements OnInit {
             this.musiciansQty--;
             this.initializeHighlightedChartData();
             this.initializeGenderChartData();
+            this.musicianTable?.reset();
           }
         });
       },
