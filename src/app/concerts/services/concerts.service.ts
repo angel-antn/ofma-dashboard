@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, delay, of } from 'rxjs';
+import { Observable, catchError, delay, map, of } from 'rxjs';
 import {
   Concert,
   ConcertResponse,
 } from '../interfaces/concert-response.interface';
 import { enviroments } from 'src/environments/environments';
+import { AddConcertMusicianResponse } from '../interfaces/add-concert-musician.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ConcertService {
@@ -62,7 +63,8 @@ export class ConcertService {
     formData.append('startAtHour', concert.startAtHour);
     formData.append('entriesQty', concert.entriesQty.toString());
     formData.append('pricePerEntry', concert.pricePerEntry.toString());
-    formData.append('description', concert.description);
+
+    console.log(concert.description);
 
     return this.httpClient
       .patch(`${this.url}${this.path}${concert.id}`, formData, {
@@ -137,5 +139,26 @@ export class ConcertService {
         headers: { Authorization: `Bearer ${token}` },
       })
       .pipe(catchError((err) => of(undefined)));
+  }
+
+  addMusician(
+    musicianId: string,
+    concertId: string,
+    role: string
+  ): Observable<AddConcertMusicianResponse | undefined> {
+    const token = localStorage.getItem('token');
+
+    return this.httpClient
+      .post(
+        `${this.url}${this.path}concert-musician`,
+        { musicianId, concertId, role },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .pipe(
+        map((response) => response as AddConcertMusicianResponse),
+        catchError((err) => of(undefined))
+      );
   }
 }

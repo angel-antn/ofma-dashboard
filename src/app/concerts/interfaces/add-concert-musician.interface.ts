@@ -1,6 +1,8 @@
-export interface ConcertResponse {
-  totalCount: number;
-  result: Concert[];
+export interface AddConcertMusicianResponse {
+  role: string;
+  musician: Musician;
+  concert: Concert;
+  id: string;
 }
 
 export interface Concert {
@@ -14,16 +16,22 @@ export interface Concert {
   address: string;
   entriesQty: number;
   pricePerEntry: number;
-  imageUrl: string;
   concertMusician: ConcertMusician[];
 }
 
 export interface ConcertMusician {
   id: string;
-  musicianId: string;
   role: string;
+}
+
+export interface Musician {
+  id: string;
   name: string;
   lastname: string;
-  fullname: string;
-  imageUrl: string;
+  email: string;
+  birthdate: Date;
+  startDate: Date;
+  description: string;
+  isHighlighted: boolean;
+  gender: string;
 }
