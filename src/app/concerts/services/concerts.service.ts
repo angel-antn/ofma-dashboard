@@ -7,6 +7,7 @@ import {
 } from '../interfaces/concert-response.interface';
 import { enviroments } from 'src/environments/environments';
 import { AddConcertMusicianResponse } from '../interfaces/add-concert-musician.interface';
+import { EditConcertMusicianResponse } from '../interfaces/edit-concert-musician.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ConcertService {
@@ -64,8 +65,6 @@ export class ConcertService {
     formData.append('entriesQty', concert.entriesQty.toString());
     formData.append('pricePerEntry', concert.pricePerEntry.toString());
 
-    console.log(concert.description);
-
     return this.httpClient
       .patch(`${this.url}${this.path}${concert.id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -75,6 +74,16 @@ export class ConcertService {
           return of('unknow_err');
         })
       );
+  }
+
+  deleteConcert(id: string) {
+    const token = localStorage.getItem('token');
+
+    return this.httpClient
+      .delete(`${this.url}${this.path}${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .pipe(catchError((err) => of(undefined)));
   }
 
   closeConcert(id: string) {
@@ -131,16 +140,6 @@ export class ConcertService {
       );
   }
 
-  deleteConcert(id: string) {
-    const token = localStorage.getItem('token');
-
-    return this.httpClient
-      .delete(`${this.url}${this.path}${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .pipe(catchError((err) => of(undefined)));
-  }
-
   addMusician(
     musicianId: string,
     concertId: string,
@@ -160,5 +159,35 @@ export class ConcertService {
         map((response) => response as AddConcertMusicianResponse),
         catchError((err) => of(undefined))
       );
+  }
+
+  editMusician(
+    id: string,
+    role: string
+  ): Observable<EditConcertMusicianResponse | undefined> {
+    const token = localStorage.getItem('token');
+
+    return this.httpClient
+      .patch(
+        `${this.url}${this.path}concert-musician/${id}`,
+        { role },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .pipe(
+        map((response) => response as EditConcertMusicianResponse),
+        catchError((err) => of(undefined))
+      );
+  }
+
+  deleteMusician(id: String) {
+    const token = localStorage.getItem('token');
+
+    return this.httpClient
+      .delete(`${this.url}${this.path}concert-musician/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .pipe(catchError((err) => of(undefined)));
   }
 }

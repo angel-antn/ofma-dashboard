@@ -21,6 +21,26 @@ const routes: Routes = [
     loadChildren: () =>
       import('../musicians/musicians.module').then((m) => m.MusiciansModule),
   },
+  {
+    path: 'collaborator',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('../collaborator/collaborator.module').then(
+        (m) => m.CollaboratorModule
+      ),
+  },
+  {
+    path: 'order',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('../order/order.module').then((m) => m.OrderModule),
+  },
+  {
+    path: 'payment',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('../payment/payment.module').then((m) => m.PaymentModule),
+  },
   { path: '', redirectTo: 'concerts', pathMatch: 'full' },
   { path: '**', redirectTo: 'concerts' },
 ];

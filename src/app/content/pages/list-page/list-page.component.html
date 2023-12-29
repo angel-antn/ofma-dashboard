@@ -1,1 +1,588 @@
-<p>list-page works!</p>
+<div class="flex flex-column gap-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <div class="flex gap-4 flex-column lg:flex-row overflow-x-auto">
+    <p-card class="w-full lg:w-24rem h-full">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Contenido</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl">
+              {{ allContentQty }}
+              <span class="text-4xl">videos</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Estatus</h2>
+        <p-chart
+          type="doughnut"
+          [data]="statusChartData"
+          [options]="statusChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Categorias</h2>
+        <p-chart
+          type="doughnut"
+          [data]="categoryChartData"
+          [options]="categoryChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Destacados</h2>
+        <p-chart
+          type="doughnut"
+          [data]="highlighteChartData"
+          [options]="highlighteChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Visibles</h2>
+        <p-chart
+          type="doughnut"
+          [data]="shownChartData"
+          [options]="shownChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      #contentTable
+      [scrollable]="true"
+      [value]="publishedContent"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['name']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Contenido publicado</h1>
+
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobal($event)"
+                placeholder="Buscar contenido"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Miniatura</th>
+          <th>Nombre</th>
+          <th>Estatus</th>
+          <th>Categoria</th>
+          <th>Destacado</th>
+          <th>Visible</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-content>
+        <tr>
+          <td>
+            <img
+              [style]="{ 'object-fit': 'cover' }"
+              class="w-16rem md:w-18rem h-8rem border-round-lg"
+              src="{{ content.imageUrl }}"
+              alt="{{ content.name }}"
+            />
+          </td>
+
+          <td>
+            <p>{{ content.name }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color': '#4d9e58'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold"> Publicado </span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color':
+                  content.category == 'concierto' ? '#0095ff' : '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold">{{
+                  content.category | titlecase
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': content.isHighlighted
+                  ? '#4d9e58'
+                  : '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span
+                  class="pi font-bold text-white"
+                  [ngClass]="{
+                    'pi-heart': !content.isHighlighted,
+                    'pi-heart-fill': content.isHighlighted
+                  }"
+                ></span>
+                <span class="text-white">{{
+                  content.isHighlighted ? "Destacado" : "No destacado"
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="content.isShown; else notVisibleTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="pi font-bold text-white pi-eye"></span>
+                <span class="text-white">Visible</span>
+              </div>
+            </p-tag>
+
+            <ng-template #notVisibleTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="pi font-bold text-white pi-eye-slash"></span>
+                  <span class="text-white">Oculto</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+              <p-button
+                [routerLink]="['/admin/content/', content.id]"
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">Ver más</span>
+              </p-button>
+
+              <p-button
+                (onClick)="changeShownStatus(content.id, false)"
+                *ngIf="content.isShown; else shownButton"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span>Ocultar</span>
+                </span>
+              </p-button>
+
+              <ng-template #shownButton>
+                <p-button
+                  (onClick)="changeShownStatus(content.id, true)"
+                  severity="success"
+                  [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+                >
+                  <span class="text-white font-bold">
+                    <span>Mostrar</span>
+                  </span>
+                </p-button>
+              </ng-template>
+
+              <p-button
+                (click)="confirmDelete(content.id, 'published')"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <p-card>
+    <p-table
+      #draftContentTable
+      [scrollable]="true"
+      [value]="draftContent"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['name']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Borradores</h1>
+            <p-button
+              severity="info"
+              (click)="dialogVisible = true"
+              [style]="{
+              'background-color': '#0095ff',
+              border: 'none',
+            }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalDraft($event)"
+                placeholder="Buscar contenido"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Miniatura</th>
+          <th>Nombre</th>
+          <th>Estatus</th>
+          <th>Categoria</th>
+          <th>Destacado</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-content>
+        <tr>
+          <td>
+            <img
+              [style]="{ 'object-fit': 'cover' }"
+              class="w-16rem md:w-18rem h-8rem border-round-lg"
+              src="{{ content.imageUrl }}"
+              alt="{{ content.name }}"
+            />
+          </td>
+
+          <td>
+            <p>{{ content.name }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold"> Borrador </span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color':
+                  content.category == 'concierto' ? '#0095ff' : '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold">{{
+                  content.category | titlecase
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': content.isHighlighted
+                  ? '#4d9e58'
+                  : '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span
+                  class="pi font-bold text-white"
+                  [ngClass]="{
+                    'pi-heart': !content.isHighlighted,
+                    'pi-heart-fill': content.isHighlighted
+                  }"
+                ></span>
+                <span class="text-white">{{
+                  content.isHighlighted ? "Destacado" : "No destacado"
+                }}</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+              <p-button
+                [routerLink]="['/admin/content/', content.id]"
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">Ver más</span>
+              </p-button>
+
+              <p-button
+                (onClick)="prepareToPublish(content.id)"
+                severity="success"
+                [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-upload"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                (click)="confirmDelete(content.id, 'draft')"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-dialog
+  header="Crear nuevo contenido"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="ContentForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="['Concierto', 'Entrevista']"
+          inputId="category"
+          formControlName="category"
+        ></p-dropdown>
+        <label for="gender">Categoria</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <input
+          accept="image/webp"
+          type="file"
+          (change)="uploadFile($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': file ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="file"
+          >{{ file!.name | slice : 0 : 20
+          }}{{ file!.name.length > 20 ? "...webp" : "" }}</span
+        >
+      </div>
+
+      <div class="flex flex-1 justify-content-end gap-2 mt-5">
+        <span>Destacado</span>
+        <p-inputSwitch formControlName="isHighlighted"></p-inputSwitch>
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{ width: '100%', 'margin-bottom': '3rem' }"
+          label="Crear contenido"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Publicar contenido"
+  [(visible)]="videoUploadDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <div class="m-0 md:mx-8 mt-4 w-20rem md:w-30rem h-auto">
+      <div class="text-lg mb-5">
+        <span
+          >Sube un video en formato MP4 y publícalo para que pueda ser visible
+          por aquellos usuarios con suscripción activa</span
+        >
+      </div>
+
+      <div style="margin-top: 3rem">
+        <input
+          accept="video/mp4"
+          type="file"
+          (change)="uploadVideo($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': fileVideo ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="fileVideo"
+          >{{ fileVideo!.name | slice : 0 : 20
+          }}{{ fileVideo!.name.length > 20 ? "...mp4" : "" }}</span
+        >
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          (onClick)="publishVideo()"
+          [style]="{ width: '100%', 'margin-bottom': '3rem' }"
+          label="Publicar contenido"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

@@ -5,7 +5,7 @@
     [closable]="false"
   ></p-messages>
 
-  <div class="flex gap-4 flex-column lg:flex-row">
+  <div class="flex gap-4 flex-column lg:flex-row overflow-x-auto">
     <p-card class="w-full lg:w-24rem h-full">
       <div class="h-25rem">
         <h2 class="text-6xl mt-0">Conciertos</h2>
@@ -137,7 +137,10 @@
             <p>{{ stringToDate(concert.startAtHour) | date : "h:mm a" }}</p>
           </td>
           <td>
-            <div class="flex gap-3">
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
               <p-button
                 [routerLink]="['/admin/concerts/', concert.id]"
                 severity="info"
@@ -270,7 +273,10 @@
             <p>{{ stringToDate(concert.startAtHour) | date : "h:mm a" }}</p>
           </td>
           <td>
-            <div class="flex gap-3">
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
               <p-button
                 [routerLink]="['/admin/concerts/', concert.id]"
                 severity="info"

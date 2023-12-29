@@ -30,6 +30,9 @@ export class ConcertPageComponent {
 
   editConcertDialogVisible = false;
   addMusicianDialogVisible = false;
+  editMusicianDialogVisible = false;
+
+  selectedMusicianToEdit = '';
 
   @ViewChild('concertMusicianTable') concertMusicianTable: Table | undefined;
 
@@ -86,6 +89,10 @@ export class ConcertPageComponent {
     musician: new FormControl<Musician | undefined>(undefined),
   });
 
+  EditMusicianForm = new FormGroup({
+    role: new FormControl<string>(''),
+  });
+
   //upload webp
   uploadFile(event: Event) {
     const element = event.currentTarget as HTMLInputElement;
@@ -102,7 +109,7 @@ export class ConcertPageComponent {
     }
   }
 
-  onSubmit() {
+  onEditConcertSubmit() {
     if (
       this.ConcertForm.invalid ||
       !this.ConcertForm.value.entriesQty ||
@@ -175,6 +182,74 @@ export class ConcertPageComponent {
           this.MusicianForm.reset();
         }
       });
+  }
+
+  prepareToShowEditMusianDialog(id: string, role: string) {
+    this.selectedMusicianToEdit = id;
+    this.EditMusicianForm.reset({ role });
+    this.editMusicianDialogVisible = true;
+  }
+
+  onConcertMusicianEditSubmit() {
+    if (this.EditMusicianForm.invalid) {
+      this.generateToast('Error', 'Hay campos obligatorios sin rellenar');
+      return;
+    }
+
+    this.concertService
+      .editMusician(
+        this.selectedMusicianToEdit,
+        this.EditMusicianForm.value.role ?? ''
+      )
+      .subscribe((res) => {
+        if (!res) {
+          this.generateToast('Error', 'Ha ocurrido un error inesperado');
+        } else {
+          this.concert!.concertMusician = this.concert!.concertMusician.map(
+            (musician) => {
+              if (this.selectedMusicianToEdit === musician.id) {
+                musician.role = this.EditMusicianForm.value.role ?? '';
+                return musician;
+              } else {
+                return musician;
+              }
+            }
+          );
+
+          this.generateToast(
+            'Success',
+            'Se ha un músico al concierto con exito'
+          );
+          this.EditMusicianForm.reset();
+          this.selectedMusicianToEdit = '';
+          this.editMusicianDialogVisible = false;
+        }
+      });
+  }
+
+  confirmMusicianDelete(id: string) {
+    this.confirmationService.confirm({
+      message: '¿Esta seguro que desea borrar al músico del concierto?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.concertService.deleteMusician(id).subscribe((res) => {
+          if (!res) {
+            this.generateToast('Error', 'Ha ocurrido un error inesperado');
+          } else {
+            this.generateToast(
+              'Success',
+              'Se ha eliminado el concierto con exito'
+            );
+            this.concert!.concertMusician =
+              this.concert!.concertMusician.filter(
+                (musician) => musician.id != id
+              );
+            this.concertMusicianTable?.reset();
+          }
+        });
+      },
+    });
   }
 
   ngOnInit(): void {

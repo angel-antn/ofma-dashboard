@@ -221,6 +221,9 @@
         <td>
           <div class="flex gap-3">
             <p-button
+              (click)="
+                prepareToShowEditMusianDialog(musician.id, musician.role)
+              "
               severity="warning"
               [style]="{
               'background-color': '#f59e0b',
@@ -233,6 +236,7 @@
             </p-button>
 
             <p-button
+              (click)="confirmMusicianDelete(musician.id)"
               severity="error"
               [style]="{
                 'background-color': '#ea4b5a',
@@ -261,7 +265,7 @@
     <form
       class="m-0 md:mx-8 mt-4"
       [formGroup]="ConcertForm"
-      (ngSubmit)="onSubmit()"
+      (ngSubmit)="onEditConcertSubmit()"
     >
       <span class="p-float-label">
         <input
@@ -458,5 +462,48 @@
     </form>
   </ng-template>
 </p-dialog>
+
+<p-dialog
+  header="Editar músico"
+  [(visible)]="editMusicianDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4 w-10 md:w-30rem"
+      [formGroup]="EditMusicianForm"
+      (ngSubmit)="onConcertMusicianEditSubmit()"
+    >
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="editRole"
+          class="w-full"
+          formControlName="role"
+          required
+        />
+        <label htmlFor="editRole">Rol</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Editar músico"
+          [outlined]="true"
+          severity="warning"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
 
 <p-toast key="toast" position="bottom-right"></p-toast>

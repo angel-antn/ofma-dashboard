@@ -1,1 +1,520 @@
-<p>content-page works!</p>
+<div class="flex flex-column gap-5 mb-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <p-card class="w-full">
+    <ng-template #loader>
+      <div
+        class="flex flex-column flex-1 justify-content-center align-items-center px-2 md:px-6"
+      >
+        <img src="assets/loader.svg" alt="loader" />
+      </div>
+    </ng-template>
+    <div
+      *ngIf="content; else loader"
+      class="flex gap-2 xl:flex-row flex-column"
+    >
+      <div class="xl:w-6">
+        <div
+          class="flex flex-column xl:flex-row xl:gap-5 flex-1 justify-content-center align-items-center px-2 md:px-6"
+        >
+          <img
+            [src]="content.imageUrl"
+            [alt]="content.name"
+            class="w-10 xl:w-6 border-round-lg"
+            [style]="{ 'object-fit': 'cover' }"
+          />
+          <div>
+            <h1 class="text-center xl:text-left text-6xl mb-0 text-blue-400">
+              {{ content.name }}
+            </h1>
+            <p class="text-center xl:text-left text-2xl">
+              {{ content.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <p-divider class="hidden xl:block" [layout]="'vertical'"></p-divider>
+      <p-divider class="xl:hidden" [layout]="'horizontal'"></p-divider>
+      <div class="xl:w-6">
+        <div class="px-2 md:px-4">
+          <div class="flex gap-3 align-items-center">
+            <h2 class="text-4xl">Contenido</h2>
+            <p-button
+              severity="warning"
+              icon="pi pi-pencil"
+              [outlined]="true"
+              (click)="editContentDialogVisible = true"
+            >
+            </p-button>
+          </div>
+
+          <div *ngIf="!content.isDraft">
+            <h3 class="pb-1">Video:</h3>
+            <p-button
+              (onClick)="playVideoDialogVisible = true"
+              icon="pi pi-play"
+              label="Ver video"
+              [outlined]="true"
+              severity="info"
+            ></p-button>
+          </div>
+
+          <h3 class="pt-2">Info:</h3>
+
+          <p-divider align="right">
+            <div class="inline-flex align-items-center">
+              <i class="pi pi-tags mr-2"></i>
+              <b>Categoria</b>
+            </div>
+          </p-divider>
+
+          <div class="mt-3">
+            <div class="flex gap-3">
+              <p-tag
+                *ngIf="content.category == 'entrevista'"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#f59e0b'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Entrevista </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="content.category == 'concierto'"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Concierto </span>
+                </div>
+              </p-tag>
+            </div>
+          </div>
+
+          <p-divider align="right">
+            <div class="inline-flex align-items-center">
+              <i class="pi pi-flag mr-2"></i>
+              <b>Estatus</b>
+            </div>
+          </p-divider>
+
+          <div class="mt-3">
+            <div class="flex gap-3">
+              <p-tag
+                *ngIf="content?.isDraft"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Borrador </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="!content?.isDraft"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Publicado </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="content?.isShown"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Visible </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="!content?.isShown"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Oculto </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="content?.isHighlighted"
+                [style]="{
+                  width: '6rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> Destacado </span>
+                </div>
+              </p-tag>
+
+              <p-tag
+                *ngIf="!content?.isHighlighted"
+                [style]="{
+                  width: '7rem',
+                  'background-color': '#f59e0b'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white font-bold"> No destacado </span>
+                </div>
+              </p-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<p-card>
+  <p-table
+    #concertMusicianTable
+    [scrollable]="true"
+    [value]="content?.exclusiveContentMusician ?? []"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [paginator]="true"
+    [rows]="10"
+    paginatorStyleClass="mt-5"
+    [globalFilterFields]="['fullname']"
+  >
+    <ng-template pTemplate="caption">
+      <div
+        class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+      >
+        <div class="flex gap-5 justify-content-start align-items-center">
+          <h1>Músicos</h1>
+          <p-button
+            severity="info"
+            (click)="addMusicianDialogVisible = true"
+            [style]="{
+              'background-color': '#0095ff',
+              border: 'none',
+            }"
+          >
+            <span class="text-white font-bold">
+              <span class="pi pi-plus"></span>
+            </span>
+          </p-button>
+        </div>
+
+        <span
+          ><span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              (input)="applyFilterGlobal($event)"
+              placeholder="Buscar músico"
+            /> </span
+        ></span>
+      </div> </ng-template
+    ><ng-template pTemplate="header">
+      <tr>
+        <th>Músico</th>
+        <th>Rol</th>
+        <th>Opciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-musician>
+      <tr>
+        <td>
+          <div class="flex gap-3">
+            <img
+              [style]="{ 'object-fit': 'cover' }"
+              class="w-3rem h-3rem border-circle"
+              src="{{ musician.imageUrl }}"
+              alt="{{ musician.fullname }}"
+            />
+            <p>{{ musician.fullname | titlecase }}</p>
+          </div>
+        </td>
+
+        <td>
+          <p>{{ musician.role | titlecase }}</p>
+        </td>
+
+        <td>
+          <div class="flex gap-3">
+            <p-button
+              (click)="
+                prepareToShowEditMusianDialog(musician.id, musician.role)
+              "
+              severity="warning"
+              [style]="{
+              'background-color': '#f59e0b',
+              border: 'none',
+            }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-pencil"></span>
+              </span>
+            </p-button>
+
+            <p-button
+              (click)="confirmMusicianDelete(musician.id)"
+              severity="error"
+              [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-trash"></span>
+              </span>
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog
+  header="Editar concierto"
+  [(visible)]="editContentDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="ContentForm"
+      (ngSubmit)="onEditConcertSubmit()"
+    >
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="['Concierto', 'Entrevista']"
+          inputId="category"
+          formControlName="category"
+        ></p-dropdown>
+        <label for="gender">Categoria</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <input
+          accept="image/webp"
+          type="file"
+          (change)="uploadFile($event)"
+          hidden
+          id="fileUpload"
+        />
+        <label
+          for="fileUpload"
+          [style]="{
+            padding: '1rem 4rem',
+            'background-color': file ? '#4d9e58' : '#0095ff',
+            color: '#fff',
+            'box-shadow': 'none',
+            border: 'none',
+            'border-radius': '5px',
+            cursor: 'pointer'
+          }"
+          >Choose File</label
+        >
+        <span class="mt-5 block lg:inline lg:ml-2 lg:mt-0" *ngIf="file"
+          >{{ file!.name | slice : 0 : 20
+          }}{{ file!.name.length > 20 ? "...webp" : "" }}</span
+        >
+      </div>
+
+      <div class="flex flex-1 justify-content-end gap-2 mt-5">
+        <span>Destacado</span>
+        <p-inputSwitch formControlName="isHighlighted"></p-inputSwitch>
+      </div>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Editar contenido"
+          [outlined]="true"
+          severity="warning"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Agregar músico"
+  [(visible)]="addMusicianDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4 w-10 md:w-30rem"
+      [formGroup]="MusicianForm"
+      (ngSubmit)="onConcertMusicianSubmit()"
+    >
+      <span class="p-float-label">
+        <p-dropdown
+          appendTo="body"
+          [options]="musicians"
+          [showClear]="true"
+          id="musician"
+          [style]="{ width: '100%' }"
+          [filter]="true"
+          [filterFields]="['fullname']"
+          formControlName="musician"
+          (keydown.enter)="$event.preventDefault()"
+        >
+          <ng-template let-musician pTemplate="selectedItem">
+            <span>{{ musician?.fullname ?? "" | titlecase }}</span>
+          </ng-template>
+          <ng-template let-musician pTemplate="item">
+            <div class="flex align-items-center gap-3 mr-8">
+              <img
+                src="{{ musician.imageUrl }}"
+                class="w-2rem h-2rem border-circle"
+                style="object-fit: cover"
+              />
+              <div>{{ musician.fullname | titlecase }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+
+        <label htmlFor="musician">Músico</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="role"
+          class="w-full"
+          formControlName="role"
+          required
+        />
+        <label htmlFor="role">Rol</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Agregar músico"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Editar músico"
+  [(visible)]="editMusicianDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4 w-10 md:w-30rem"
+      [formGroup]="EditMusicianForm"
+      (ngSubmit)="onConcertMusicianEditSubmit()"
+    >
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="editRole"
+          class="w-full"
+          formControlName="role"
+          required
+        />
+        <label htmlFor="editRole">Rol</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Editar músico"
+          [outlined]="true"
+          severity="warning"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Video"
+  [(visible)]="playVideoDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <video
+      src="{{ content?.videoUrl }}"
+      style="width: 75vw; height: 70vh"
+      controls
+    ></video>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

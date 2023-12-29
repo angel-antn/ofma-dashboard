@@ -75,8 +75,6 @@ export class MusiciansService {
 
     formData.append('description', musician.description);
 
-    console.log(musician.id);
-
     return this.httpClient
       .patch(`${this.url}${this.path}${musician.id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },

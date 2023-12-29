@@ -127,7 +127,6 @@ export class ListPageComponent {
   };
 
   private initializeStatusChartData() {
-    this.endedConcertsQty = this.endedConcertsQty;
     this.openQty = this.concerts.filter((concert) => concert.isOpen).length;
     this.closedQty = Math.abs(this.concerts.length - this.openQty);
 

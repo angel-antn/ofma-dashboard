@@ -27,7 +27,7 @@
         formControlName="password"
         required
       ></p-password>
-      <label for="password">Password</label>
+      <label for="password">Contraseña</label>
     </span>
 
     <div class="mt-5">
@@ -38,6 +38,19 @@
         [outlined]="true"
         severity="info"
       ></p-button>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div
+      class="flex flex-column align-items-center justify-content-center mt-3"
+    >
+      <span class="text-md">¿Olvidaste tu contraseña?</span>
+      <span
+        [routerLink]="'/auth/reset-password'"
+        class="mt-1 cursor-pointer border-bottom-1 hover:border-900"
+        >Intenta resetearla aquí</span
+      >
     </div>
   </form>
 </p-card>

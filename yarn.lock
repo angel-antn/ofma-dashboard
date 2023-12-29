@@ -2149,6 +2149,13 @@ ajv@^6.12.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
+angular-code-input@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/angular-code-input/-/angular-code-input-2.0.0.tgz#311010031d57c619cc92f0c8829a67b59ee12900"
+  integrity sha512-HqGo0nce3OpckisGT44J9PAvn1HHQJPq4Y4j0o818HCQ9eg0EU/80odnasnLTTsTSc33skyi6r0rt14ZJAgeNg==
+  dependencies:
+    tslib "^2.3.0"
+
 ansi-colors@4.1.3:
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-4.1.3.tgz#37611340eb2243e70cc604cad35d63270d48781b"

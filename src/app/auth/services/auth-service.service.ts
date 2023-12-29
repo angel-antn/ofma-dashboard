@@ -46,4 +46,32 @@ export class AuthService {
         catchError((err) => of(false))
       );
   }
+
+  recoverPassword(email: string): Observable<boolean> {
+    return this.httpClient
+      .post(`${this.url}${this.path}reset-password-request`, {
+        email,
+      })
+      .pipe(
+        map((res) => !!res),
+        catchError((err) => of(false))
+      );
+  }
+
+  validateRecoverPassword(
+    email: string,
+    password: string,
+    resetPasswordOtp: string
+  ): Observable<boolean> {
+    return this.httpClient
+      .post(`${this.url}${this.path}validate-reset-password-request`, {
+        email,
+        password,
+        resetPasswordOtp,
+      })
+      .pipe(
+        map((res) => !!res),
+        catchError((err) => of(false))
+      );
+  }
 }
