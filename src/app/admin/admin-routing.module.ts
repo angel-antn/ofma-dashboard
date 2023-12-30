@@ -36,10 +36,9 @@ const routes: Routes = [
       import('../order/order.module').then((m) => m.OrderModule),
   },
   {
-    path: 'payment',
+    path: 'bank',
     component: LayoutComponent,
-    loadChildren: () =>
-      import('../payment/payment.module').then((m) => m.PaymentModule),
+    loadChildren: () => import('../bank/bank.module').then((m) => m.BankModule),
   },
   { path: '', redirectTo: 'concerts', pathMatch: 'full' },
   { path: '**', redirectTo: 'concerts' },

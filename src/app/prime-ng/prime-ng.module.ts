@@ -18,7 +18,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { AccordionModule } from 'primeng/accordion';
 
 @NgModule({
   exports: [
@@ -41,7 +40,6 @@ import { AccordionModule } from 'primeng/accordion';
     DividerModule,
     DialogModule,
     InputNumberModule,
-    AccordionModule,
   ],
 })
 export class PrimeNgModule {}
