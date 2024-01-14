@@ -110,7 +110,11 @@ export class MusicianPageComponent implements OnInit {
             'Otro músico ya tiene ese email registrado'
           );
         } else {
-          this.musician = res as Musician;
+          this.musician = {
+            ...(res as Musician),
+            concertCount: this.musician?.concertCount,
+            exclusiveContentCount: this.musician?.exclusiveContentCount,
+          };
           this.musician.imageUrl = `${
             this.musician.imageUrl
           }?${new Date().getTime()}`;

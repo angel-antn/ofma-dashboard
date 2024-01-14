@@ -51,6 +51,8 @@
         <tr>
           <th>Nombre</th>
           <th>Email</th>
+          <th>Rol</th>
+          <th>Estatus</th>
           <th>Opciones</th>
         </tr>
       </ng-template>
@@ -58,12 +60,53 @@
       <ng-template pTemplate="body" let-collaborator>
         <tr>
           <td>
-            <p>
-              {{ collaborator.name + " " + collaborator.lastname | titlecase }}
-            </p>
+            <div
+              class="inline-flex gap-3 justify-content-center align-items-center"
+            >
+              <div
+                class="hidden bg-purple-400 border-circle w-3rem h-3rem lg:inline-flex justify-content-center align-items-center shadow-4 text-white"
+              >
+                <span
+                  >{{ collaborator.name[0] | uppercase
+                  }}{{ collaborator.lastname[0] | uppercase }}</span
+                >
+              </div>
+
+              <span>{{
+                collaborator.name + " " + collaborator.lastname | titlecase
+              }}</span>
+            </div>
           </td>
 
-          <td>{{ collaborator.email }}</td>
+          <td>
+            <span>{{ collaborator.email }}</span>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold"> Colaborador </span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '6rem',
+                'background-color': '#4d9e58'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white font-bold">Activo</span>
+              </div>
+            </p-tag>
+          </td>
 
           <td>
             <div

@@ -15,4 +15,6 @@ export interface Musician {
   gender: string;
   fullname?: string;
   imageUrl?: string;
+  concertCount?: number;
+  exclusiveContentCount?: number;
 }
