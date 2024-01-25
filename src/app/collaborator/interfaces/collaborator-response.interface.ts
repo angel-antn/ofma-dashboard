@@ -9,4 +9,5 @@ export interface Collaborator {
   name: string;
   lastname: string;
   isCollaborator: boolean;
+  fullname: string;
 }

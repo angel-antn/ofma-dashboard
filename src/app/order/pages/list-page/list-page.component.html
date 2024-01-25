@@ -1,1 +1,731 @@
-<p>list-page works!</p>
+<div class="flex flex-column gap-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <div class="flex gap-4 flex-column lg:flex-row overflow-x-auto">
+    <p-card class="w-full lg:w-24rem h-full">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Órdenes</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl"
+              >{{
+                (orders?.failed?.length ?? 0) +
+                  (orders?.pending?.length ?? 0) +
+                  (orders?.success?.length ?? 0)
+              }}<span class="text-4xl">
+                {{
+                  (orders?.failed?.length ?? 0) +
+                    (orders?.pending?.length ?? 0) +
+                    (orders?.success?.length ?? 0) ==
+                  1
+                    ? "Orden"
+                    : "Órdenes"
+                }}</span
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem h-full">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Pendientes</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl"
+              >{{ orders?.pending?.length ?? 0
+              }}<span class="text-4xl">
+                {{
+                  (orders?.pending?.length ?? 0) == 1 ? "Orden" : "Órdenes"
+                }}</span
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Estatus</h2>
+        <p-chart
+          type="doughnut"
+          [data]="ordersChartData"
+          [options]="ordersChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      #pendingTable
+      [scrollable]="true"
+      [value]="orders?.pending ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Órdenes pendientes</h1>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Usuario</th>
+          <th>Método de pago</th>
+          <th>Monto USD</th>
+          <th>Monto VES</th>
+          <th>Tipo</th>
+          <th>Estatus</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>
+            <p>{{ order.user.email }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="
+                !order.transferBankAccount &&
+                  !order.mobilePayBankAccount &&
+                  !order.zelleBankAccount;
+                else zelleTag
+              "
+              [style]="{
+                width: '8rem',
+                'background-color': '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Stripe</span>
+              </div>
+            </p-tag>
+
+            <ng-template #zelleTag>
+              <p-tag
+                *ngIf="order.zelleBankAccount; else transferTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Zelle</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #transferTag>
+              <p-tag
+                *ngIf="order.transferBankAccount; else mobilePayTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Transferencia</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #mobilePayTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Pago móvil</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p>
+              <span>{{ order.amount | number : "1.2-2" }}</span> USD
+            </p>
+          </td>
+
+          <td>
+            <p>
+              {{
+                order.exchangeRate
+                  ? (order.amount * order.exchangeRate.rate | number : "1.2-2")
+                  : "--"
+              }}
+              <span *ngIf="order.exchangeRate"> VES</span>
+            </p>
+          </td>
+          <td>
+            <p-tag
+              *ngIf="order.type == 'boleteria'; else suscriptionTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Boleteria</span>
+              </div>
+            </p-tag>
+
+            <ng-template #suscriptionTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Suscripción</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Pendiente</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-eye"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card>
+    <p-table
+      #successTable
+      [scrollable]="true"
+      [value]="orders?.success ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Órdenes verificadas</h1>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Usuario</th>
+          <th>Método de pago</th>
+          <th>Monto USD</th>
+          <th>Monto VES</th>
+          <th>Tipo</th>
+          <th>Estatus</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>
+            <p>{{ order.user.email }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="
+                !order.transferBankAccount &&
+                  !order.mobilePayBankAccount &&
+                  !order.zelleBankAccount;
+                else zelleTag
+              "
+              [style]="{
+                width: '8rem',
+                'background-color': '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Stripe</span>
+              </div>
+            </p-tag>
+
+            <ng-template #zelleTag>
+              <p-tag
+                *ngIf="order.zelleBankAccount; else transferTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Zelle</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #transferTag>
+              <p-tag
+                *ngIf="order.transferBankAccount; else mobilePayTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Transferencia</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #mobilePayTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Pago móvil</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p>
+              <span>{{ order.amount | number : "1.2-2" }}</span> USD
+            </p>
+          </td>
+
+          <td>
+            <p>
+              {{
+                order.exchangeRate
+                  ? (order.amount * order.exchangeRate.rate | number : "1.2-2")
+                  : "--"
+              }}
+              <span *ngIf="order.exchangeRate"> VES</span>
+            </p>
+          </td>
+          <td>
+            <p-tag
+              *ngIf="order.type == 'boleteria'; else suscriptionTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Boleteria</span>
+              </div>
+            </p-tag>
+
+            <ng-template #suscriptionTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Suscripción</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': '#4d9e58'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Verificada</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-eye"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card>
+    <p-table
+      #failedTable
+      [scrollable]="true"
+      [value]="orders?.failed ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Órdenes rechazadas</h1>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Usuario</th>
+          <th>Método de pago</th>
+          <th>Monto USD</th>
+          <th>Monto VES</th>
+          <th>Tipo</th>
+          <th>Estatus</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>
+            <p>{{ order.user.email }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="
+                !order.transferBankAccount &&
+                  !order.mobilePayBankAccount &&
+                  !order.zelleBankAccount;
+                else zelleTag
+              "
+              [style]="{
+                width: '8rem',
+                'background-color': '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Stripe</span>
+              </div>
+            </p-tag>
+
+            <ng-template #zelleTag>
+              <p-tag
+                *ngIf="order.zelleBankAccount; else transferTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Zelle</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #transferTag>
+              <p-tag
+                *ngIf="order.transferBankAccount; else mobilePayTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Transferencia</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #mobilePayTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Pago móvil</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p>
+              <span>{{ order.amount | number : "1.2-2" }}</span> USD
+            </p>
+          </td>
+
+          <td>
+            <p>
+              {{
+                order.exchangeRate
+                  ? (order.amount * order.exchangeRate.rate | number : "1.2-2")
+                  : "--"
+              }}
+              <span *ngIf="order.exchangeRate"> VES</span>
+            </p>
+          </td>
+          <td>
+            <p-tag
+              *ngIf="order.type == 'boleteria'; else suscriptionTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Boleteria</span>
+              </div>
+            </p-tag>
+
+            <ng-template #suscriptionTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Suscripción</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': '#ea4b5a'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Rechazada</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                severity="info"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-eye"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-dialog
+  header="Crear nuevo concierto"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form class="m-0 md:mx-8 mt-4">
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="startDate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startDate"
+        ></p-calendar>
+        <label htmlFor="startDate">Fecha de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          id="startAtHour"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startAtHour"
+          [timeOnly]="true"
+          [hourFormat]="'12'"
+        ></p-calendar>
+        <label htmlFor="startAtHour">Hora de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="entriesQty"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="entriesQty"
+          [useGrouping]="false"
+        />
+        <label htmlFor="entriesQty">Cantidad de entradas</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="pricePerEntry"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="pricePerEntry"
+          mode="currency"
+          currency="USD"
+          locale="de-DE"
+          [maxFractionDigits]="2"
+          [minFractionDigits]="2"
+        />
+        <label htmlFor="pricePerEntry">Precio por entrada</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="address"
+          class="w-20rem md:w-30rem"
+          formControlName="address"
+          required
+        />
+        <label htmlFor="address">Dirección</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear concierto"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

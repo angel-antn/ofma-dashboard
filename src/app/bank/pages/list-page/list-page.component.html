@@ -1,1 +1,633 @@
-<p>list-page works!</p>
+<div class="flex flex-column gap-5">
+  <p-messages
+    key="messages"
+    [value]="[message]"
+    [closable]="false"
+  ></p-messages>
+
+  <div class="flex gap-4 flex-column lg:flex-row overflow-x-auto">
+    <p-card class="w-full lg:w-auto h-full">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Tasa de cambio</h2>
+        <div class="w-full border-1 py-6 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl px-5">
+              36.5 <span class="text-4xl">VES</span></span
+            >
+          </div>
+        </div>
+        <div class="py-3">
+          <p-button
+            label="Actualizar tasa"
+            [outlined]="true"
+            [style]="{ width: '100%' }"
+          ></p-button>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem h-full">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Cuentas</h2>
+        <div class="w-full border-1 py-8 border-200 border-round-lg">
+          <div class="flex justify-content-center align-items-center">
+            <span class="text-8xl"
+              >{{
+                (bankAccounts?.mobilePayBankAccounts?.result?.length ?? 0) +
+                  (bankAccounts?.transferBankAccounts?.result?.length ?? 0) +
+                  (bankAccounts?.zelleBankAccounts?.result?.length ?? 0)
+              }}<span class="text-4xl">Cuentas</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Tipos</h2>
+        <p-chart
+          type="doughnut"
+          [data]="accountsChartData"
+          [options]="accountsChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+
+    <p-card class="w-full lg:w-24rem">
+      <div class="h-25rem">
+        <h2 class="text-6xl mt-0">Visibles</h2>
+        <p-chart
+          type="doughnut"
+          [data]="shownChartData"
+          [options]="shownChartOptions"
+        ></p-chart>
+      </div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      #transferTable
+      [scrollable]="true"
+      [value]="bankAccounts?.transferBankAccounts?.result ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Transferencia</h1>
+            <p-button
+              severity="info"
+              (click)="dialogVisible = true"
+              [style]="{
+              'background-color': '#0095ff',
+              border: 'none',
+            }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Alias</th>
+          <th>Banco</th>
+          <th>Beneficiario</th>
+          <th>Documento</th>
+          <th>Email</th>
+          <th>Número de cuenta</th>
+          <th>Visible</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-bankAccount>
+        <tr>
+          <td>
+            <p>{{ bankAccount.accountAlias }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.bank.name }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderName }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderDocument }}</p>
+          </td>
+          <td>
+            <p>{{ bankAccount.accountHolderEmail }}</p>
+          </td>
+          <td>
+            <p>{{ bankAccount.accountNumber }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="bankAccount.isShown; else notVisibleTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="pi font-bold text-white pi-eye"></span>
+                <span class="text-white">Visible</span>
+              </div>
+            </p-tag>
+
+            <ng-template #notVisibleTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="pi font-bold text-white pi-eye-slash"></span>
+                  <span class="text-white">Oculto</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                *ngIf="bankAccount.isShown; else shownButton"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span>Ocultar</span>
+                </span>
+              </p-button>
+
+              <ng-template #shownButton>
+                <p-button
+                  severity="success"
+                  [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+                >
+                  <span class="text-white font-bold">
+                    <span>Mostrar</span>
+                  </span>
+                </p-button>
+              </ng-template>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card>
+    <p-table
+      #mobilePayTable
+      [scrollable]="true"
+      [value]="bankAccounts?.mobilePayBankAccounts?.result ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Pago móvil</h1>
+            <p-button
+              severity="info"
+              (click)="dialogVisible = true"
+              [style]="{
+              'background-color': '#0095ff',
+              border: 'none',
+            }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Alias</th>
+          <th>Banco</th>
+          <th>Documento</th>
+          <th>Teléfono</th>
+          <th>Visible</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-bankAccount>
+        <tr>
+          <td>
+            <p>{{ bankAccount.accountAlias }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.bank.name }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderDocument }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderPhone }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="bankAccount.isShown; else notVisibleTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="pi font-bold text-white pi-eye"></span>
+                <span class="text-white">Visible</span>
+              </div>
+            </p-tag>
+
+            <ng-template #notVisibleTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="pi font-bold text-white pi-eye-slash"></span>
+                  <span class="text-white">Oculto</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                *ngIf="bankAccount.isShown; else shownButton"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span>Ocultar</span>
+                </span>
+              </p-button>
+
+              <ng-template #shownButton>
+                <p-button
+                  severity="success"
+                  [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+                >
+                  <span class="text-white font-bold">
+                    <span>Mostrar</span>
+                  </span>
+                </p-button>
+              </ng-template>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card>
+    <p-table
+      #zelleTable
+      [scrollable]="true"
+      [value]="bankAccounts?.zelleBankAccounts?.result ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <div class="flex gap-5 justify-content-start align-items-center">
+            <h1>Zelle</h1>
+            <p-button
+              severity="info"
+              (click)="dialogVisible = true"
+              [style]="{
+              'background-color': '#0095ff',
+              border: 'none',
+            }"
+            >
+              <span class="text-white font-bold">
+                <span class="pi pi-plus"></span>
+              </span>
+            </p-button>
+          </div>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Alias</th>
+          <th>Beneficiario</th>
+          <th>Email</th>
+          <th>Visible</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-bankAccount>
+        <tr>
+          <td>
+            <p>{{ bankAccount.accountAlias }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderName }}</p>
+          </td>
+
+          <td>
+            <p>{{ bankAccount.accountHolderEmail }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="bankAccount.isShown; else notVisibleTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="pi font-bold text-white pi-eye"></span>
+                <span class="text-white">Visible</span>
+              </div>
+            </p-tag>
+
+            <ng-template #notVisibleTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="pi font-bold text-white pi-eye-slash"></span>
+                  <span class="text-white">Oculto</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                *ngIf="bankAccount.isShown; else shownButton"
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span>Ocultar</span>
+                </span>
+              </p-button>
+
+              <ng-template #shownButton>
+                <p-button
+                  severity="success"
+                  [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+                >
+                  <span class="text-white font-bold">
+                    <span>Mostrar</span>
+                  </span>
+                </p-button>
+              </ng-template>
+
+              <p-button
+                severity="warning"
+                [style]="{
+                'background-color': '#f59e0b',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-pencil"></span>
+                </span>
+              </p-button>
+
+              <p-button
+                severity="error"
+                [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-trash"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-dialog
+  header="Crear nuevo concierto"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form class="m-0 md:mx-8 mt-4">
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="name"
+          class="w-20rem md:w-30rem"
+          formControlName="name"
+          required
+        />
+        <label htmlFor="name">Nombre</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          dateFormat="dd/mm/yy"
+          id="startDate"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startDate"
+        ></p-calendar>
+        <label htmlFor="startDate">Fecha de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-calendar
+          id="startAtHour"
+          [style]="{ width: '100%' }"
+          (click)="$event.stopPropagation()"
+          formControlName="startAtHour"
+          [timeOnly]="true"
+          [hourFormat]="'12'"
+        ></p-calendar>
+        <label htmlFor="startAtHour">Hora de inicio</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="entriesQty"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="entriesQty"
+          [useGrouping]="false"
+        />
+        <label htmlFor="entriesQty">Cantidad de entradas</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="pricePerEntry"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="pricePerEntry"
+          mode="currency"
+          currency="USD"
+          locale="de-DE"
+          [maxFractionDigits]="2"
+          [minFractionDigits]="2"
+        />
+        <label htmlFor="pricePerEntry">Precio por entrada</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="address"
+          class="w-20rem md:w-30rem"
+          formControlName="address"
+          required
+        />
+        <label htmlFor="address">Dirección</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <textarea
+          pInputTextarea
+          id="description"
+          rows="5"
+          [style]="{ width: '100%', resize: 'vertical' }"
+          formControlName="description"
+          required
+        ></textarea>
+        <label htmlFor="description">Descripción</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear concierto"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog acceptLabel="Si" rejectLabel="No"></p-confirmDialog>
+
+<p-toast key="toast" position="bottom-right"></p-toast>

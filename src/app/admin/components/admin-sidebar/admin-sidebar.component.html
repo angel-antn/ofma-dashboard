@@ -2,7 +2,8 @@
   <img
     [src]="isDarkMode ? 'assets/ofma_logo.svg' : 'assets/ofma_logo_variant.svg'"
     alt="Ofma logo"
-    class="w-10rem mb-5"
+    class="w-10rem mb-5 cursor-pointer"
+    (click)="onButtonClick('/admin/concerts/list')"
   />
   <p-button
     icon="pi pi-ticket"

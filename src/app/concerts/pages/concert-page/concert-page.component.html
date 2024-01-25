@@ -219,7 +219,11 @@
         </td>
 
         <td>
-          <div class="flex gap-3">
+          <div
+            class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+          >
+            <div class="pi pi-bars text-xl"></div>
+
             <p-button
               (click)="
                 prepareToShowEditMusianDialog(musician.id, musician.role)

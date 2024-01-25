@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-musicians-layout',
+  selector: 'app-order-layout',
   templateUrl: './layout.component.html',
   styles: [],
 })

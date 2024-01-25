@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, of } from 'rxjs';
 import { enviroments } from 'src/environments/environments';
-import { BankAccountResponse } from '../interfaces/bank-account-response.interface';
 
 @Injectable({ providedIn: 'root' })
-export class BankAccountService {
+export class ExchangeRateService {
   private url: string = enviroments.ofmaBackendUrl;
-  private path: string = '/api/bank-account/';
+  private path: string = '/api/exchange-rate/';
 
   constructor(private httpClient: HttpClient) {}
 
-  getBankAccounts(): Observable<BankAccountResponse> {
+  getLastExchangeRate(): Observable<any> {
     const token = localStorage.getItem('token');
-    return this.httpClient.get<BankAccountResponse>(`${this.url}${this.path}`, {
+    return this.httpClient.get<any>(`${this.url}${this.path}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
