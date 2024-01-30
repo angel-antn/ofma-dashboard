@@ -18,6 +18,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @NgModule({
   exports: [
@@ -40,6 +41,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
     DividerModule,
     DialogModule,
     InputNumberModule,
+    OverlayPanelModule,
   ],
 })
 export class PrimeNgModule {}

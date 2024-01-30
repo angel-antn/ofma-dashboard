@@ -31,6 +31,13 @@ export interface MobilePayBankAccount {
   accountHolderDocument: string;
   accountAlias: string;
   isShown: boolean;
+  bank: Bank;
+}
+
+export interface Bank {
+  id: string;
+  name: string;
+  code: string;
 }
 
 export interface TransferBankAccount {
@@ -41,6 +48,7 @@ export interface TransferBankAccount {
   accountHolderDocument: string;
   accountAlias: string;
   isShown: boolean;
+  bank: Bank;
 }
 
 export interface User {

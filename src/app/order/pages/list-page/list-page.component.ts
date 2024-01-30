@@ -1,9 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { OrderService } from '../../services/orders.service';
 import { ConfirmationService, Message, MessageService } from 'primeng/api';
-import { OrdersResponse } from '../../interfaces/orders-response.interface';
+import {
+  Order,
+  OrdersResponse,
+} from '../../interfaces/orders-response.interface';
 import { Table } from 'primeng/table';
-import { FormControl, FormGroup } from '@angular/forms';
+import { OverlayPanel } from 'primeng/overlaypanel';
 
 @Component({
   selector: 'app-list-page',
@@ -18,13 +21,129 @@ export class ListPageComponent {
     private confirmationService: ConfirmationService
   ) {}
 
-  dialogVisible = false;
+  transferDialogVisible = false;
+  mobilePayDialogVisible = false;
+  zelleDialogVisible = false;
+  stripeDialogVisible = false;
+
+  selectedOrder: Order | undefined;
+
+  showOrderInfo(order: Order) {
+    this.selectedOrder = order;
+    if (order.transferBankAccount) {
+      this.transferDialogVisible = true;
+    } else if (order.mobilePayBankAccount) {
+      this.mobilePayDialogVisible = true;
+    } else if (order.zelleBankAccount) {
+      this.zelleDialogVisible = true;
+    } else if (
+      !order.transferBankAccount &&
+      !order.mobilePayBankAccount &&
+      !order.zelleBankAccount
+    ) {
+      this.stripeDialogVisible = true;
+    }
+  }
 
   orders?: OrdersResponse;
 
-  @ViewChild('pendingTable') transferTable: Table | undefined;
-  @ViewChild('successTable') mobilePayTable: Table | undefined;
-  @ViewChild('failedTable') zelleTable: Table | undefined;
+  @ViewChild('pendingTable') pendingTable: Table | undefined;
+  @ViewChild('successTable') successTable: Table | undefined;
+  @ViewChild('failedTable') failedTable: Table | undefined;
+
+  //pending overlay
+  @ViewChild('pendingOverlayPanel') pendingOverlayPanel:
+    | OverlayPanel
+    | undefined;
+  isOverlayPanelOpen = false;
+
+  initOrderPendingEdit(order: Order, event: MouseEvent) {
+    if (!this.isOverlayPanelOpen) {
+      this.selectedOrder = order;
+      this.pendingOverlayPanel?.show(event);
+      this.isOverlayPanelOpen = true;
+    }
+  }
+
+  closeOverlayPanel() {
+    this.pendingOverlayPanel?.hide();
+    this.isOverlayPanelOpen = false;
+  }
+
+  ngAfterViewInit() {
+    this.pendingOverlayPanel?.onHide.subscribe(() => {
+      this.isOverlayPanelOpen = false;
+    });
+  }
+
+  //changeStatus
+  changeStatus(status: 'rechazado' | 'verificado') {
+    console.log();
+    this.confirmationService.confirm({
+      message:
+        status == 'verificado'
+          ? '¿Esta seguro que desea marcar como verificado?'
+          : '¿Esta seguro que desea marcar como rechazado?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        console.log(this.selectedOrder?.id ?? 'fuck');
+        this.orderService
+          .changeStatus(this.selectedOrder!.id, status)
+          .subscribe((res) => {
+            if (!res) {
+              this.generateToast('Error', 'Ha ocurrido un error inesperado');
+            } else {
+              this.generateToast(
+                'Success',
+                'Se ha actualizado con exito el estatus de la orden'
+              );
+              if (this.selectedOrder!.status == 'pendiente') {
+                this.orders!.pending = this.orders!.pending.filter(
+                  (orderChecked) => {
+                    if (orderChecked.id == this.selectedOrder!.id) {
+                      return false;
+                    }
+                    return true;
+                  }
+                );
+              } else if (this.selectedOrder!.status == 'rechazado') {
+                this.orders!.failed = this.orders!.failed.filter(
+                  (orderChecked) => {
+                    if (orderChecked.id == this.selectedOrder!.id) {
+                      return false;
+                    }
+                    return true;
+                  }
+                );
+              } else if (this.selectedOrder!.status == 'verificado') {
+                this.orders!.success = this.orders!.success.filter(
+                  (orderChecked) => {
+                    if (orderChecked.id == this.selectedOrder!.id) {
+                      return false;
+                    }
+                    return true;
+                  }
+                );
+              }
+
+              this.selectedOrder!.status = status;
+
+              if (status == 'rechazado') {
+                this.orders!.failed.unshift(this.selectedOrder!);
+              } else {
+                this.orders!.success.unshift(this.selectedOrder!);
+              }
+
+              this.initializeOrdersChartData();
+              this.failedTable?.reset();
+              this.successTable?.reset();
+              this.pendingTable?.reset();
+            }
+          });
+      },
+    });
+  }
 
   //toast
   generateToast(severity: 'Error' | 'Success', detail: string) {
@@ -36,11 +155,6 @@ export class ListPageComponent {
       life: 3000,
     });
   }
-
-  //form
-  CollaboratorForm = new FormGroup({
-    email: new FormControl<string>(''),
-  });
 
   //info message
   message: Message = {
@@ -83,8 +197,20 @@ export class ListPageComponent {
   }
 
   //table
-  applyFilterGlobal($event: any) {
-    this.transferTable?.filterGlobal(
+  applyFilterGlobalPending($event: any) {
+    this.pendingTable?.filterGlobal(
+      ($event.target as HTMLInputElement).value,
+      'contains'
+    );
+  }
+  applyFilterGlobalVerified($event: any) {
+    this.pendingTable?.filterGlobal(
+      ($event.target as HTMLInputElement).value,
+      'contains'
+    );
+  }
+  applyFilterGlobalSuccess($event: any) {
+    this.pendingTable?.filterGlobal(
       ($event.target as HTMLInputElement).value,
       'contains'
     );

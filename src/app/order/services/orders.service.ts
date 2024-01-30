@@ -17,4 +17,18 @@ export class OrderService {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
+
+  changeStatus(
+    orderId: string,
+    status: 'rechazado' | 'verificado'
+  ): Observable<OrdersResponse> {
+    const token = localStorage.getItem('token');
+    return this.httpClient.patch<OrdersResponse>(
+      `${this.url}${this.path}${orderId}`,
+      { status },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  }
 }

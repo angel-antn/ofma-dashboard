@@ -71,12 +71,23 @@
       [paginator]="true"
       [rows]="10"
       paginatorStyleClass="mt-5"
+      [globalFilterFields]="['id']"
     >
       <ng-template pTemplate="caption">
         <div
           class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
         >
           <h1>Órdenes pendientes</h1>
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalPending($event)"
+                placeholder="Buscar N° de orden"
+              /> </span
+          ></span>
         </div> </ng-template
       ><ng-template pTemplate="header">
         <tr>
@@ -219,6 +230,7 @@
               <div class="pi pi-bars text-xl"></div>
 
               <p-button
+                (click)="showOrderInfo(order)"
                 severity="info"
                 [style]="{
                 'background-color': '#0095ff',
@@ -231,6 +243,7 @@
               </p-button>
 
               <p-button
+                (click)="initOrderPendingEdit(order, $event)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -405,6 +418,7 @@
 
               <p-button
                 severity="info"
+                (click)="showOrderInfo(order)"
                 [style]="{
                 'background-color': '#0095ff',
                 border: 'none',
@@ -416,6 +430,7 @@
               </p-button>
 
               <p-button
+                (click)="initOrderPendingEdit(order, $event)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -590,6 +605,7 @@
 
               <p-button
                 severity="info"
+                (click)="showOrderInfo(order)"
                 [style]="{
                 'background-color': '#0095ff',
                 border: 'none',
@@ -601,6 +617,7 @@
               </p-button>
 
               <p-button
+                (click)="initOrderPendingEdit(order, $event)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -619,110 +636,299 @@
   </p-card>
 </div>
 
+<p-overlayPanel #pendingOverlayPanel>
+  <ng-template pTemplate="content">
+    <div class="px-5 flex gap-3">
+      <p-button
+        [disabled]="selectedOrder?.status == 'verificado'"
+        severity="success"
+        (onClick)="changeStatus('verificado')"
+        [style]="{
+                'background-color': '#4d9e58',
+                border: 'none',
+              }"
+      >
+        <span class="text-white font-bold">
+          <span class="pi pi-check"></span>
+        </span> </p-button
+      ><p-button
+        [disabled]="selectedOrder?.status == 'rechazado'"
+        (onClick)="changeStatus('rechazado')"
+        severity="error"
+        [style]="{
+                'background-color': '#ea4b5a',
+                border: 'none',
+              }"
+      >
+        <span class="text-white font-bold">
+          <span class="pi pi-times"></span>
+        </span>
+      </p-button>
+    </div>
+  </ng-template>
+</p-overlayPanel>
+
 <p-dialog
-  header="Crear nuevo concierto"
-  [(visible)]="dialogVisible"
+  header="Datos de la orden por transferencia"
+  [(visible)]="transferDialogVisible"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
 >
   <ng-template pTemplate="content">
-    <form class="m-0 md:mx-8 mt-4">
-      <span class="p-float-label">
-        <input
-          pInputText
-          id="name"
-          class="w-20rem md:w-30rem"
-          formControlName="name"
-          required
-        />
-        <label htmlFor="name">Nombre</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-calendar
-          dateFormat="dd/mm/yy"
-          id="startDate"
-          [style]="{ width: '100%' }"
-          (click)="$event.stopPropagation()"
-          formControlName="startDate"
-        ></p-calendar>
-        <label htmlFor="startDate">Fecha de inicio</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-calendar
-          id="startAtHour"
-          [style]="{ width: '100%' }"
-          (click)="$event.stopPropagation()"
-          formControlName="startAtHour"
-          [timeOnly]="true"
-          [hourFormat]="'12'"
-        ></p-calendar>
-        <label htmlFor="startAtHour">Hora de inicio</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-inputNumber
-          id="entriesQty"
-          inputStyleClass="w-20rem md:w-30rem"
-          formControlName="entriesQty"
-          [useGrouping]="false"
-        />
-        <label htmlFor="entriesQty">Cantidad de entradas</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-inputNumber
-          id="pricePerEntry"
-          inputStyleClass="w-20rem md:w-30rem"
-          formControlName="pricePerEntry"
-          mode="currency"
-          currency="USD"
-          locale="de-DE"
-          [maxFractionDigits]="2"
-          [minFractionDigits]="2"
-        />
-        <label htmlFor="pricePerEntry">Precio por entrada</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <input
-          pInputText
-          id="address"
-          class="w-20rem md:w-30rem"
-          formControlName="address"
-          required
-        />
-        <label htmlFor="address">Dirección</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <textarea
-          pInputTextarea
-          id="description"
-          rows="5"
-          [style]="{ width: '100%', resize: 'vertical' }"
-          formControlName="description"
-          required
-        ></textarea>
-        <label htmlFor="description">Descripción</label>
-      </span>
-
-      <div class="mt-5">
-        <p-button
-          type="submit"
-          [style]="{
-            width: '100%',
-            'margin-bottom': '3rem',
-            'margin-top': '1.5rem'
-          }"
-          label="Crear concierto"
-          [outlined]="true"
-          severity="info"
-        ></p-button>
+    <div class="w-30rem">
+      <h3>N° de orden</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-list mr-3"></span>
+          {{ selectedOrder?.id ?? "" }}</span
+        >
       </div>
-    </form>
+      <h3>N° de referencia del pago</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-paperclip mr-3"></span>
+          {{ selectedOrder?.reference ?? "" }}</span
+        >
+      </div>
+
+      <h3>Usuario remitente</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{ selectedOrder?.user?.name ?? "" | titlecase }}
+            {{ selectedOrder?.user?.lastname ?? "" | titlecase }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{ selectedOrder?.user?.email ?? "" }}</span
+          >
+        </div>
+      </div>
+
+      <h3>Cuenta beneficiaria</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-money-bill mr-3"></span>
+            {{ selectedOrder?.transferBankAccount?.bank?.name ?? "" }} (
+            {{ selectedOrder?.transferBankAccount?.bank?.code ?? "" }} )</span
+          >
+        </div>
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-wallet mr-3"></span>
+            {{ selectedOrder?.transferBankAccount?.accountNumber ?? "" }}</span
+          >
+        </div>
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{
+              selectedOrder?.transferBankAccount?.accountHolderName ?? ""
+                | titlecase
+            }}</span
+          >
+        </div>
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-id-card mr-3"></span>
+            {{
+              selectedOrder?.transferBankAccount?.accountHolderDocument ?? ""
+            }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{
+              selectedOrder?.transferBankAccount?.accountHolderEmail ?? ""
+            }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Datos de la orden por pago móvil"
+  [(visible)]="mobilePayDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <div class="w-30rem">
+      <h3>N° de orden</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-list mr-3"></span>
+          {{ selectedOrder?.id ?? "" }}</span
+        >
+      </div>
+      <h3>N° de referencia del pago</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-paperclip mr-3"></span>
+          {{ selectedOrder?.reference ?? "" }}</span
+        >
+      </div>
+
+      <h3>Usuario remitente</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{ selectedOrder?.user?.name ?? "" | titlecase }}
+            {{ selectedOrder?.user?.lastname ?? "" | titlecase }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{ selectedOrder?.user?.email ?? "" }}</span
+          >
+        </div>
+      </div>
+
+      <h3>Cuenta beneficiaria</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-money-bill mr-3"></span>
+            {{ selectedOrder?.mobilePayBankAccount?.bank?.name ?? "" }} (
+            {{ selectedOrder?.mobilePayBankAccount?.bank?.code ?? "" }} )</span
+          >
+        </div>
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-id-card mr-3"></span>
+            {{
+              selectedOrder?.mobilePayBankAccount?.accountHolderDocument ?? ""
+            }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-phone mr-3"></span>
+            {{
+              selectedOrder?.mobilePayBankAccount?.accountHolderPhone ?? ""
+            }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Datos de la orden por zelle"
+  [(visible)]="zelleDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <div class="w-30rem">
+      <h3>N° de orden</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-list mr-3"></span>
+          {{ selectedOrder?.id ?? "" }}</span
+        >
+      </div>
+      <h3>N° de referencia del pago</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-paperclip mr-3"></span>
+          {{ selectedOrder?.reference ?? "" }}</span
+        >
+      </div>
+
+      <h3>Usuario remitente</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{ selectedOrder?.user?.name ?? "" | titlecase }}
+            {{ selectedOrder?.user?.lastname ?? "" | titlecase }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{ selectedOrder?.user?.email ?? "" }}</span
+          >
+        </div>
+      </div>
+
+      <h3>Cuenta beneficiaria</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{ selectedOrder?.zelleBankAccount?.accountHolderName ?? "" }}</span
+          >
+        </div>
+
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{
+              selectedOrder?.zelleBankAccount?.accountHolderEmail ?? ""
+            }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Datos de la orden por stripe"
+  [(visible)]="stripeDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <div class="w-30rem">
+      <h3>N° de orden</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-list mr-3"></span>
+          {{ selectedOrder?.id ?? "" }}</span
+        >
+      </div>
+      <h3>N° de referencia del pago</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <span>
+          <span class="pi pi-paperclip mr-3"></span>
+          {{ selectedOrder?.reference ?? "" }}</span
+        >
+      </div>
+
+      <h3>Usuario remitente</h3>
+      <div class="border-round-md p-3 surface-ground border-1 border-100">
+        <div class="mb-2">
+          <span>
+            <span class="pi pi-user mr-3"></span>
+            {{ selectedOrder?.user?.name ?? "" | titlecase }}
+            {{ selectedOrder?.user?.lastname ?? "" | titlecase }}</span
+          >
+        </div>
+        <div>
+          <span>
+            <span class="pi pi-envelope mr-3"></span>
+            {{ selectedOrder?.user?.email ?? "" }}</span
+          >
+        </div>
+      </div>
+    </div>
   </ng-template>
 </p-dialog>
 
