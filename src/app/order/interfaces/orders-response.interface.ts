@@ -2,6 +2,7 @@ export interface OrdersResponse {
   pending: Order[];
   failed: Order[];
   success: Order[];
+  returned: Order[];
 }
 
 export interface Order {

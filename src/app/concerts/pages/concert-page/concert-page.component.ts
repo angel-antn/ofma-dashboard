@@ -58,7 +58,7 @@ export class ConcertPageComponent {
     severity: 'info',
     summary: 'Info',
     detail:
-      'Esta sección del dashboard permite gestionar la informacion de un concierto de la orquesta',
+      'Esta sección del dashboard permite gestionar la información de un concierto de la orquesta',
     closable: false,
   };
 

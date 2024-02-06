@@ -59,7 +59,7 @@ export class ContentPageComponent {
     severity: 'info',
     summary: 'Info',
     detail:
-      'Esta sección del dashboard permite gestionar la informacion de un contenido exclusivo de la orquesta',
+      'Esta sección del dashboard permite gestionar la información de un contenido exclusivo de la orquesta',
     closable: false,
   };
 

@@ -15,12 +15,14 @@
               >{{
                 (orders?.failed?.length ?? 0) +
                   (orders?.pending?.length ?? 0) +
-                  (orders?.success?.length ?? 0)
+                  (orders?.success?.length ?? 0) +
+                  (orders?.returned?.length ?? 0)
               }}<span class="text-4xl">
                 {{
                   (orders?.failed?.length ?? 0) +
                     (orders?.pending?.length ?? 0) +
-                    (orders?.success?.length ?? 0) ==
+                    (orders?.success?.length ?? 0) +
+                    (orders?.returned?.length ?? 0) ==
                   1
                     ? "Orden"
                     : "Órdenes"
@@ -192,7 +194,7 @@
               }"
             >
               <div class="p-2 flex gap-2">
-                <span class="text-white">Boleteria</span>
+                <span class="text-white">Boletería</span>
               </div>
             </p-tag>
 
@@ -269,12 +271,23 @@
       [paginator]="true"
       [rows]="10"
       paginatorStyleClass="mt-5"
+      [globalFilterFields]="['id']"
     >
       <ng-template pTemplate="caption">
         <div
           class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
         >
           <h1>Órdenes verificadas</h1>
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalSuccess($event)"
+                placeholder="Buscar N° de orden"
+              /> </span
+          ></span>
         </div> </ng-template
       ><ng-template pTemplate="header">
         <tr>
@@ -430,7 +443,7 @@
               </p-button>
 
               <p-button
-                (click)="initOrderPendingEdit(order, $event)"
+                (click)="initOrderPendingEdit(order, $event, true)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -456,12 +469,23 @@
       [paginator]="true"
       [rows]="10"
       paginatorStyleClass="mt-5"
+      [globalFilterFields]="['id']"
     >
       <ng-template pTemplate="caption">
         <div
           class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
         >
           <h1>Órdenes rechazadas</h1>
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalFailed($event)"
+                placeholder="Buscar N° de orden"
+              /> </span
+          ></span>
         </div> </ng-template
       ><ng-template pTemplate="header">
         <tr>
@@ -634,6 +658,191 @@
       </ng-template>
     </p-table>
   </p-card>
+  <p-card>
+    <p-table
+      #returnedTable
+      [scrollable]="true"
+      [value]="orders?.returned ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      paginatorStyleClass="mt-5"
+      [globalFilterFields]="['id']"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex md:justify-content-between md:align-items-center flex-column md:flex-row"
+        >
+          <h1>Órdenes reembolsadas</h1>
+          <span
+            ><span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobalReturned($event)"
+                placeholder="Buscar N° de orden"
+              /> </span
+          ></span>
+        </div> </ng-template
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Usuario</th>
+          <th>Método de pago</th>
+          <th>Monto USD</th>
+          <th>Monto VES</th>
+          <th>Tipo</th>
+          <th>Estatus</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>
+            <p>{{ order.user.email }}</p>
+          </td>
+
+          <td>
+            <p-tag
+              *ngIf="
+                !order.transferBankAccount &&
+                  !order.mobilePayBankAccount &&
+                  !order.zelleBankAccount;
+                else zelleTag
+              "
+              [style]="{
+                width: '8rem',
+                'background-color': '#f59e0b'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Stripe</span>
+              </div>
+            </p-tag>
+
+            <ng-template #zelleTag>
+              <p-tag
+                *ngIf="order.zelleBankAccount; else transferTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#ea4b5a'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Zelle</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #transferTag>
+              <p-tag
+                *ngIf="order.transferBankAccount; else mobilePayTag"
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Transferencia</span>
+                </div>
+              </p-tag>
+            </ng-template>
+
+            <ng-template #mobilePayTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#0095ff'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Pago móvil</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p>
+              <span>{{ order.amount | number : "1.2-2" }}</span> USD
+            </p>
+          </td>
+
+          <td>
+            <p>
+              {{
+                order.exchangeRate
+                  ? (order.amount * order.exchangeRate.rate | number : "1.2-2")
+                  : "--"
+              }}
+              <span *ngIf="order.exchangeRate"> VES</span>
+            </p>
+          </td>
+          <td>
+            <p-tag
+              *ngIf="order.type == 'boleteria'; else suscriptionTag"
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Boleteria</span>
+              </div>
+            </p-tag>
+
+            <ng-template #suscriptionTag>
+              <p-tag
+                [style]="{
+                  width: '8rem',
+                  'background-color': '#4d9e58'
+                }"
+              >
+                <div class="p-2 flex gap-2">
+                  <span class="text-white">Suscripción</span>
+                </div>
+              </p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <p-tag
+              [style]="{
+                width: '8rem',
+                'background-color': '#0095ff'
+              }"
+            >
+              <div class="p-2 flex gap-2">
+                <span class="text-white">Reembolsada</span>
+              </div>
+            </p-tag>
+          </td>
+
+          <td>
+            <div
+              class="inline-flex gap-3 py-3 px-5 border-1 border-100 surface-ground border-round-md align-items-center"
+            >
+              <div class="pi pi-bars text-xl"></div>
+
+              <p-button
+                severity="info"
+                (click)="showOrderInfo(order)"
+                [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+              >
+                <span class="text-white font-bold">
+                  <span class="pi pi-eye"></span>
+                </span>
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 </div>
 
 <p-overlayPanel #pendingOverlayPanel>
@@ -662,6 +871,20 @@
       >
         <span class="text-white font-bold">
           <span class="pi pi-times"></span>
+        </span>
+      </p-button>
+
+      <p-button
+        *ngIf="canReturnPayment"
+        severity="info"
+        (onClick)="changeStatus('reembolsado')"
+        [style]="{
+                'background-color': '#0095ff',
+                border: 'none',
+              }"
+      >
+        <span class="text-white font-bold">
+          <span>Reembolsar</span>
         </span>
       </p-button>
     </div>
@@ -826,7 +1049,7 @@
 </p-dialog>
 
 <p-dialog
-  header="Datos de la orden por zelle"
+  header="Datos de la orden por Zelle"
   [(visible)]="zelleDialogVisible"
   [modal]="true"
   [draggable]="false"
@@ -889,7 +1112,7 @@
 </p-dialog>
 
 <p-dialog
-  header="Datos de la orden por stripe"
+  header="Datos de la orden por Stripe"
   [(visible)]="stripeDialogVisible"
   [modal]="true"
   [draggable]="false"

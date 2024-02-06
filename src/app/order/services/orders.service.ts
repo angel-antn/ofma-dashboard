@@ -20,7 +20,7 @@ export class OrderService {
 
   changeStatus(
     orderId: string,
-    status: 'rechazado' | 'verificado'
+    status: 'rechazado' | 'verificado' | 'reembolsado'
   ): Observable<OrdersResponse> {
     const token = localStorage.getItem('token');
     return this.httpClient.patch<OrdersResponse>(

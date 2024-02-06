@@ -28,6 +28,8 @@ export class ListPageComponent {
 
   selectedOrder: Order | undefined;
 
+  canReturnPayment: boolean = false;
+
   showOrderInfo(order: Order) {
     this.selectedOrder = order;
     if (order.transferBankAccount) {
@@ -50,6 +52,7 @@ export class ListPageComponent {
   @ViewChild('pendingTable') pendingTable: Table | undefined;
   @ViewChild('successTable') successTable: Table | undefined;
   @ViewChild('failedTable') failedTable: Table | undefined;
+  @ViewChild('returnedTable') returnedTable: Table | undefined;
 
   //pending overlay
   @ViewChild('pendingOverlayPanel') pendingOverlayPanel:
@@ -57,7 +60,12 @@ export class ListPageComponent {
     | undefined;
   isOverlayPanelOpen = false;
 
-  initOrderPendingEdit(order: Order, event: MouseEvent) {
+  initOrderPendingEdit(
+    order: Order,
+    event: MouseEvent,
+    canReturnPayment = false
+  ) {
+    this.canReturnPayment = canReturnPayment;
     if (!this.isOverlayPanelOpen) {
       this.selectedOrder = order;
       this.pendingOverlayPanel?.show(event);
@@ -77,13 +85,14 @@ export class ListPageComponent {
   }
 
   //changeStatus
-  changeStatus(status: 'rechazado' | 'verificado') {
-    console.log();
+  changeStatus(status: 'rechazado' | 'verificado' | 'reembolsado') {
     this.confirmationService.confirm({
       message:
         status == 'verificado'
           ? '¿Esta seguro que desea marcar como verificado?'
-          : '¿Esta seguro que desea marcar como rechazado?',
+          : status == 'rechazado'
+          ? '¿Esta seguro que desea marcar como rechazado?'
+          : '¿Esta seguro que desea marcar como reembolsado?',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -131,14 +140,17 @@ export class ListPageComponent {
 
               if (status == 'rechazado') {
                 this.orders!.failed.unshift(this.selectedOrder!);
-              } else {
+              } else if (status == 'verificado') {
                 this.orders!.success.unshift(this.selectedOrder!);
+              } else {
+                this.orders!.returned.unshift(this.selectedOrder!);
               }
 
               this.initializeOrdersChartData();
               this.failedTable?.reset();
               this.successTable?.reset();
               this.pendingTable?.reset();
+              this.returnedTable?.reset();
             }
           });
       },
@@ -172,23 +184,26 @@ export class ListPageComponent {
 
   private initializeOrdersChartData() {
     this.ordersChartData = {
-      labels: ['Verificados', 'Pendientes', 'Rechazados'],
+      labels: ['Verificados', 'Pendientes', 'Rechazados', 'Reembolsados'],
       datasets: [
         {
           data: [
             this.orders?.success.length,
             this.orders?.pending.length,
             this.orders?.failed.length,
+            this.orders?.returned.length,
           ],
           backgroundColor: [
             'rgba(77, 158, 88, 0.3)',
-            'rgba(0, 149, 255, 0.3)',
+            'rgba(245, 158, 11, 0.3)',
             'rgba(234, 75, 90, 0.3)',
+            'rgba(0, 149, 255, 0.3)',
           ],
           borderColor: [
             'rgb(77, 158, 88)',
-            'rgb(0, 149, 255)',
+            'rgb(245, 158, 11)',
             'rgb(234, 75, 90)',
+            'rgb(0, 149, 255)',
           ],
           borderWidth: 1,
         },
@@ -203,14 +218,20 @@ export class ListPageComponent {
       'contains'
     );
   }
-  applyFilterGlobalVerified($event: any) {
-    this.pendingTable?.filterGlobal(
+  applyFilterGlobalSuccess($event: any) {
+    this.successTable?.filterGlobal(
       ($event.target as HTMLInputElement).value,
       'contains'
     );
   }
-  applyFilterGlobalSuccess($event: any) {
-    this.pendingTable?.filterGlobal(
+  applyFilterGlobalFailed($event: any) {
+    this.failedTable?.filterGlobal(
+      ($event.target as HTMLInputElement).value,
+      'contains'
+    );
+  }
+  applyFilterGlobalReturned($event: any) {
+    this.returnedTable?.filterGlobal(
       ($event.target as HTMLInputElement).value,
       'contains'
     );

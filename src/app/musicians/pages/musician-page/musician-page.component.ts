@@ -29,7 +29,7 @@ export class MusicianPageComponent implements OnInit {
     severity: 'info',
     summary: 'Info',
     detail:
-      'Esta sección del dashboard permite gestionar la informacion de un músico de la orquesta',
+      'Esta sección del dashboard permite gestionar la información de un músico de la orquesta',
     closable: false,
   };
 

@@ -6,18 +6,20 @@
   ></p-messages>
 
   <div class="flex gap-4 flex-column lg:flex-row overflow-x-auto">
-    <p-card class="w-full lg:w-auto h-full">
-      <div class="h-25rem">
+    <p-card class="h-full">
+      <div class="h-25rem lg:w-28rem">
         <h2 class="text-6xl mt-0">Tasa de cambio</h2>
         <div class="w-full border-1 py-6 border-200 border-round-lg">
           <div class="flex justify-content-center align-items-center">
             <span class="text-8xl px-5">
-              36.5 <span class="text-4xl">VES</span></span
+              {{ exchangeRate?.rate ?? "00.00" | number : "1.2-2" }}
+              <span class="text-4xl">VES</span></span
             >
           </div>
         </div>
         <div class="py-3">
           <p-button
+            (onClick)="dialogExchangeRateVisible = true"
             label="Actualizar tasa"
             [outlined]="true"
             [style]="{ width: '100%' }"
@@ -26,10 +28,10 @@
       </div>
     </p-card>
 
-    <p-card class="w-full lg:w-24rem h-full">
+    <p-card class="w-full h-full lg:w-auto">
       <div class="h-25rem">
         <h2 class="text-6xl mt-0">Cuentas</h2>
-        <div class="w-full border-1 py-8 border-200 border-round-lg">
+        <div class="w-full border-1 py-8 border-200 border-round-lg lg:w-20rem">
           <div class="flex justify-content-center align-items-center">
             <span class="text-8xl"
               >{{
@@ -84,7 +86,7 @@
             <h1>Transferencia</h1>
             <p-button
               severity="info"
-              (click)="dialogVisible = true"
+              (click)="dialogTransferVisible = true"
               [style]="{
               'background-color': '#0095ff',
               border: 'none',
@@ -169,6 +171,7 @@
               <div class="pi pi-bars text-xl"></div>
 
               <p-button
+                (click)="updateShownAccount('transfer', bankAccount, false)"
                 *ngIf="bankAccount.isShown; else shownButton"
                 severity="error"
                 [style]="{
@@ -183,6 +186,7 @@
 
               <ng-template #shownButton>
                 <p-button
+                  (click)="updateShownAccount('transfer', bankAccount, true)"
                   severity="success"
                   [style]="{
                 'background-color': '#4d9e58',
@@ -196,6 +200,7 @@
               </ng-template>
 
               <p-button
+                (click)="prepareUpdateAlias('transfer', bankAccount.id)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -208,6 +213,7 @@
               </p-button>
 
               <p-button
+                (click)="deleteAccount('transfer', bankAccount)"
                 severity="error"
                 [style]="{
                 'background-color': '#ea4b5a',
@@ -242,7 +248,7 @@
             <h1>Pago móvil</h1>
             <p-button
               severity="info"
-              (click)="dialogVisible = true"
+              (click)="dialogMobilePayVisible = true"
               [style]="{
               'background-color': '#0095ff',
               border: 'none',
@@ -319,6 +325,7 @@
               <div class="pi pi-bars text-xl"></div>
 
               <p-button
+                (click)="updateShownAccount('mobile-pay', bankAccount, false)"
                 *ngIf="bankAccount.isShown; else shownButton"
                 severity="error"
                 [style]="{
@@ -333,6 +340,7 @@
 
               <ng-template #shownButton>
                 <p-button
+                  (click)="updateShownAccount('mobile-pay', bankAccount, true)"
                   severity="success"
                   [style]="{
                 'background-color': '#4d9e58',
@@ -346,6 +354,7 @@
               </ng-template>
 
               <p-button
+                (click)="prepareUpdateAlias('mobile-pay', bankAccount.id)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -358,6 +367,7 @@
               </p-button>
 
               <p-button
+                (click)="deleteAccount('mobile-pay', bankAccount)"
                 severity="error"
                 [style]="{
                 'background-color': '#ea4b5a',
@@ -392,7 +402,7 @@
             <h1>Zelle</h1>
             <p-button
               severity="info"
-              (click)="dialogVisible = true"
+              (click)="dialogZelleVisible = true"
               [style]="{
               'background-color': '#0095ff',
               border: 'none',
@@ -464,6 +474,7 @@
               <div class="pi pi-bars text-xl"></div>
 
               <p-button
+                (click)="updateShownAccount('zelle', bankAccount, false)"
                 *ngIf="bankAccount.isShown; else shownButton"
                 severity="error"
                 [style]="{
@@ -478,6 +489,7 @@
 
               <ng-template #shownButton>
                 <p-button
+                  (click)="updateShownAccount('zelle', bankAccount, true)"
                   severity="success"
                   [style]="{
                 'background-color': '#4d9e58',
@@ -491,6 +503,7 @@
               </ng-template>
 
               <p-button
+                (click)="prepareUpdateAlias('zelle', bankAccount.id)"
                 severity="warning"
                 [style]="{
                 'background-color': '#f59e0b',
@@ -503,6 +516,7 @@
               </p-button>
 
               <p-button
+                (click)="deleteAccount('zelle', bankAccount)"
                 severity="error"
                 [style]="{
                 'background-color': '#ea4b5a',
@@ -522,93 +536,67 @@
 </div>
 
 <p-dialog
-  header="Crear nuevo concierto"
-  [(visible)]="dialogVisible"
+  header="Actualizar cuenta de transferencia"
+  [(visible)]="dialogAliasTransferVisible"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
 >
   <ng-template pTemplate="content">
-    <form class="m-0 md:mx-8 mt-4">
-      <span class="p-float-label">
-        <input
-          pInputText
-          id="name"
-          class="w-20rem md:w-30rem"
-          formControlName="name"
-          required
-        />
-        <label htmlFor="name">Nombre</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-calendar
-          dateFormat="dd/mm/yy"
-          id="startDate"
-          [style]="{ width: '100%' }"
-          (click)="$event.stopPropagation()"
-          formControlName="startDate"
-        ></p-calendar>
-        <label htmlFor="startDate">Fecha de inicio</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-calendar
-          id="startAtHour"
-          [style]="{ width: '100%' }"
-          (click)="$event.stopPropagation()"
-          formControlName="startAtHour"
-          [timeOnly]="true"
-          [hourFormat]="'12'"
-        ></p-calendar>
-        <label htmlFor="startAtHour">Hora de inicio</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-inputNumber
-          id="entriesQty"
-          inputStyleClass="w-20rem md:w-30rem"
-          formControlName="entriesQty"
-          [useGrouping]="false"
-        />
-        <label htmlFor="entriesQty">Cantidad de entradas</label>
-      </span>
-
-      <span class="p-float-label mt-5">
-        <p-inputNumber
-          id="pricePerEntry"
-          inputStyleClass="w-20rem md:w-30rem"
-          formControlName="pricePerEntry"
-          mode="currency"
-          currency="USD"
-          locale="de-DE"
-          [maxFractionDigits]="2"
-          [minFractionDigits]="2"
-        />
-        <label htmlFor="pricePerEntry">Precio por entrada</label>
-      </span>
-
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="AliasTransferForm"
+      (ngSubmit)="onSubmitAliasTransfer()"
+    >
       <span class="p-float-label mt-5">
         <input
           pInputText
-          id="address"
+          id="accountAlias"
           class="w-20rem md:w-30rem"
-          formControlName="address"
+          formControlName="alias"
           required
         />
-        <label htmlFor="address">Dirección</label>
+        <label htmlFor="accountAlias">Alias</label>
       </span>
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Actualizar tasa"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
 
+<p-dialog
+  header="Actualizar cuenta de pago móvil"
+  [(visible)]="dialogAliasMobilePayVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="AliasMobilePayForm"
+      (ngSubmit)="onSubmitAliasMobilePay()"
+    >
       <span class="p-float-label mt-5">
-        <textarea
-          pInputTextarea
-          id="description"
-          rows="5"
-          [style]="{ width: '100%', resize: 'vertical' }"
-          formControlName="description"
+        <input
+          pInputText
+          id="accountAlias"
+          class="w-20rem md:w-30rem"
+          formControlName="alias"
           required
-        ></textarea>
-        <label htmlFor="description">Descripción</label>
+        />
+        <label htmlFor="accountAlias">Alias</label>
       </span>
 
       <div class="mt-5">
@@ -619,7 +607,354 @@
             'margin-bottom': '3rem',
             'margin-top': '1.5rem'
           }"
-          label="Crear concierto"
+          label="Actualizar tasa"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Actualizar cuenta de zelle"
+  [(visible)]="dialogAliasZelleVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="AliasZelleForm"
+      (ngSubmit)="onSubmitAliasZelle()"
+    >
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountAlias"
+          class="w-20rem md:w-30rem"
+          formControlName="alias"
+          required
+        />
+        <label htmlFor="accountAlias">Alias</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Actualizar tasa"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Actualizar tasa"
+  [(visible)]="dialogExchangeRateVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="ExchangeRateForm"
+      (ngSubmit)="onSubmitExchangeRate()"
+    >
+      <span class="p-float-label mt-5">
+        <p-inputNumber
+          id="rate"
+          inputStyleClass="w-20rem md:w-30rem"
+          formControlName="rate"
+          mode="currency"
+          currency="VES"
+          locale="de-DE"
+          [maxFractionDigits]="2"
+          [minFractionDigits]="2"
+        />
+        <label htmlFor="rate">Precio del USD</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Actualizar tasa"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Crear nueva cuenta de transferencia"
+  [(visible)]="dialogTransferVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="TransferForm"
+      (ngSubmit)="onSubmitTransfer()"
+    >
+      <div class="inline-flex">
+        <span class="p-float-label">
+          <p-dropdown
+            [style]="{ width: '8rem' }"
+            [options]="bankCodes"
+            inputId="code"
+            formControlName="bank"
+          ></p-dropdown>
+          <label for="code">Banco</label>
+        </span>
+        <span class="p-float-label">
+          <input
+            pInputText
+            (keypress)="numericOnly($event)"
+            id="number"
+            class="w-20rem md:w-20rem ml-5"
+            formControlName="number"
+            required
+          />
+          <label class="ml-5" htmlFor="number">Número de cuenta</label>
+        </span>
+      </div>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountAlias"
+          class="w-20rem md:w-30rem"
+          formControlName="accountAlias"
+          required
+        />
+        <label htmlFor="accountAlias">Alias</label>
+      </span>
+
+      <div class="inline-flex">
+        <span class="p-float-label mt-5">
+          <p-dropdown
+            [style]="{ width: '8rem' }"
+            [options]="['V', 'E', 'J', 'P', 'G', 'C', 'N', 'I']"
+            inputId="accountHolderDocumentType"
+            formControlName="accountHolderDocumentType"
+          ></p-dropdown>
+          <label for="accountHolderDocumentType">Prefijo</label>
+        </span>
+        <span class="p-float-label mt-5">
+          <input
+            pInputText
+            (keypress)="numericOnly($event)"
+            id="accountHolderDocumentNumber"
+            class="w-20rem md:w-20rem ml-5"
+            formControlName="accountHolderDocumentNumber"
+            required
+          />
+          <label class="ml-5" htmlFor="accountHolderDocumentNumber"
+            >Documento</label
+          >
+        </span>
+      </div>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountHolderName"
+          class="w-20rem md:w-30rem"
+          formControlName="accountHolderName"
+          required
+        />
+        <label htmlFor="accountHolderName">Beneficiario</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountHolderEmail"
+          class="w-20rem md:w-30rem"
+          formControlName="accountHolderEmail"
+          required
+        />
+        <label htmlFor="accountHolderEmail">Email</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear cuenta"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Crear nueva cuenta de pago móvil"
+  [(visible)]="dialogMobilePayVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="MobilePayForm"
+      (ngSubmit)="onSubmitMobilePay()"
+    >
+      <span class="p-float-label">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="bankOptions"
+          inputId="bank"
+          formControlName="bank"
+        ></p-dropdown>
+        <label for="bank">Banco</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountAlias"
+          class="w-20rem md:w-30rem"
+          formControlName="accountAlias"
+          required
+        />
+        <label htmlFor="accountAlias">Alias</label>
+      </span>
+
+      <div class="inline-flex">
+        <span class="p-float-label mt-5">
+          <p-dropdown
+            [style]="{ width: '8rem' }"
+            [options]="['V', 'E', 'J', 'P', 'G', 'C', 'N', 'I']"
+            inputId="accountHolderDocumentType"
+            formControlName="accountHolderDocumentType"
+          ></p-dropdown>
+          <label for="accountHolderDocumentType">Prefijo</label>
+        </span>
+        <span class="p-float-label mt-5">
+          <input
+            pInputText
+            (keypress)="numericOnly($event)"
+            id="accountHolderDocumentNumber"
+            class="w-20rem md:w-20rem ml-5"
+            formControlName="accountHolderDocumentNumber"
+            required
+          />
+          <label class="ml-5" htmlFor="accountHolderDocumentNumber"
+            >Documento</label
+          >
+        </span>
+      </div>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          (keypress)="numericOnly($event)"
+          id="accountHolderPhone"
+          class="w-20rem md:w-30rem"
+          formControlName="accountHolderPhone"
+          required
+        />
+        <label htmlFor="accountHolderPhone">Teléfono</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear cuenta"
+          [outlined]="true"
+          severity="info"
+        ></p-button>
+      </div>
+    </form>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Crear nueva cuenta de zelle"
+  [(visible)]="dialogZelleVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <ng-template pTemplate="content">
+    <form
+      class="m-0 md:mx-8 mt-4"
+      [formGroup]="ZelleForm"
+      (ngSubmit)="onSubmitZelle()"
+    >
+      <span class="p-float-label">
+        <input
+          pInputText
+          id="accountAlias"
+          class="w-20rem md:w-30rem"
+          formControlName="accountAlias"
+          required
+        />
+        <label htmlFor="accountAlias">Alias</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountHolderName"
+          class="w-20rem md:w-30rem"
+          formControlName="accountHolderName"
+          required
+        />
+        <label htmlFor="accountHolderName">Beneficiario</label>
+      </span>
+
+      <span class="p-float-label mt-5">
+        <input
+          pInputText
+          id="accountHolderEmail"
+          class="w-20rem md:w-30rem"
+          formControlName="accountHolderEmail"
+          required
+        />
+        <label htmlFor="accountHolderEmail">Email</label>
+      </span>
+
+      <div class="mt-5">
+        <p-button
+          type="submit"
+          [style]="{
+            width: '100%',
+            'margin-bottom': '3rem',
+            'margin-top': '1.5rem'
+          }"
+          label="Crear cuenta"
           [outlined]="true"
           severity="info"
         ></p-button>
